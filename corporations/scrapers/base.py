@@ -1,21 +1,40 @@
 from io import BytesIO
+from typing import Optional
 
 import requests
 from bs4 import BeautifulSoup
 
-from ..util import PDFReader
+from corporations.scrapers.util import PDFReader
 
 
 class Scraper:
 
+    session: Optional[requests.Session]
+
     def base_url(self) -> str:
+        raise NotImplementedError()
+
+    def scrape_residence(self, external_id: str):
+        raise NotImplementedError()
+
+    def scrape_residence_by_url(self, url: str):
         raise NotImplementedError()
 
     def scrape_residences(self):
         raise NotImplementedError()
 
+    def start_session(self):
+        self.session = requests.Session()
+
+    def end_session(self):
+        self.session.close()
+        self.session = None
+
+    def request(self, method: str, url: str, **kwargs):
+        return self.session.request(method, url, **kwargs) if self.session else requests.request(method, url, **kwargs)
+
     def fetch(self, url: str, **kwargs):
-        response = requests.get(url, **kwargs)
+        response = self.request('GET', url, **kwargs)
 
         if 200 <= response.status_code <= 299:
             return response

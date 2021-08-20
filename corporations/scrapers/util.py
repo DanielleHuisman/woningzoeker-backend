@@ -1,6 +1,8 @@
+import re
 from io import BytesIO
 from typing import List, Optional
 
+from bs4.element import Tag
 from pdfreader import SimplePDFViewer
 
 
@@ -47,7 +49,7 @@ class PDFReader:
         return ' '.join(self.lines[start:end])
 
 
-def soup_find_string(soup) -> Optional[str]:
+def soup_find_string(soup: Tag) -> Optional[str]:
     length = len(soup.contents)
     if length == 0:
         return soup.string
@@ -61,3 +63,10 @@ def soup_find_string(soup) -> Optional[str]:
                 return text
 
     return None
+
+
+PRICE_REGEX = re.compile(r'\D')
+
+
+def parse_price(text: str):
+    return int(PRICE_REGEX.sub('', text))

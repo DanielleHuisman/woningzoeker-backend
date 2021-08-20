@@ -1,7 +1,7 @@
-import re
+from datetime import datetime
 
-from ..util import soup_find_string
 from .base import Scraper
+from .util import soup_find_string, parse_price
 
 
 class ScraperDomijn(Scraper):
@@ -9,7 +9,49 @@ class ScraperDomijn(Scraper):
     def base_url(self):
         return 'https://www.domijn.nl'
 
+    def scrape_residence(self, external_id: str):
+        return self.scrape_residence_by_url(f'${self.base_url()}/woningaanbod/detail/{external_id}')
+
+    def scrape_residence_by_url(self, url: str):
+        soup = self.fetch_html_page(url)
+
+        content = soup.find(id='content-anchor')
+
+        external_id = content.find('form', attrs={'name': 'reactionform'}).attrs['action'].split('/')[-1]
+        title = soup_find_string(content.find(class_='title')).split('-')
+        # TODO: split address into street and number/suffix
+        address = title[0].strip()
+        city = title[1].strip()
+
+        wrapper_prices = content.find(class_='price').parent.parent.find_all('p')
+        price_total = parse_price(soup_find_string(wrapper_prices[0].span))
+        price_benefit = parse_price(soup_find_string(wrapper_prices[1]))
+        price_base = parse_price(soup_find_string(wrapper_prices[2]))
+
+        table = content.find('dl').find_all('dd')
+        available_at = datetime.strptime(soup_find_string(table[1]).strip(), '%d-%m-%Y').date()
+        ended_at = datetime.strptime(soup_find_string(table[2]).strip(), '%d-%m-%Y %H:%M')
+
+        # TODO: parse additional info and floor plan
+
+        return {
+            'external_id': external_id,
+            # TODO: split address
+            'street': None,
+            'number': None,
+            'city': city,
+            'price_base': price_base,
+            # TODO: consider calculating the service costs
+            'price_service': None,
+            'price_benefit': price_benefit,
+            'price_total': price_total,
+            'available_at': available_at,
+            'ended_at': ended_at
+        }
+
     def scrape_residences(self):
+        self.start_session()
+
         residences = []
 
         page = 1
@@ -40,7 +82,7 @@ class ScraperDomijn(Scraper):
                 city = soup_find_string(wrapper_info.find('p'))
 
                 wrapper_price = article.find(class_='price')
-                price = int(re.sub(r'\D', '', soup_find_string(wrapper_price.find(class_='price-text'))))
+                price = parse_price(soup_find_string(wrapper_price.find(class_='price-text')))
 
                 residences.append({
                     'street': street,
@@ -57,4 +99,12 @@ class ScraperDomijn(Scraper):
         print(len(residences))
         print(residences)
 
-        # TODO: loop over residences, check if it is in the database, if not scrape the residence page
+        for residence in residences:
+            # TODO: check if this residence already exists in the database
+
+            result = self.scrape_residence_by_url(residence['url'])
+            print(result)
+
+            break
+
+        self.end_session()
