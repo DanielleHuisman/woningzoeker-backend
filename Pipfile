@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[requires]
+python_version = "3"
+
+[packages]
+beautifulsoup4 = "*"
+croniter = "*"
+django = "*"
+django-cors-headers = "*"
+django-q = {extras = ["sentry"], version = "*"}
+gunicorn = "*"
+mysqlclient = "*"
+pdfreader = "*"
+python-dotenv = "*"
+requests = "*"
+sentry-sdk = "*"
+django-modeltranslation = "*"
+
+[dev-packages]
