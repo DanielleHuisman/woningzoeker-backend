@@ -22,6 +22,7 @@ class ScraperDomijn(Scraper):
         # TODO: split address into street and number/suffix
         address = title[0].strip()
         city = title[1].strip()
+        neighbourhood = soup_find_string(content.p)
 
         wrapper_prices = content.find(class_='price').parent.parent.find_all('p')
         price_total = parse_price(soup_find_string(wrapper_prices[0].span))
@@ -32,21 +33,44 @@ class ScraperDomijn(Scraper):
         available_at = datetime.strptime(soup_find_string(table[1]).strip(), '%d-%m-%Y').date()
         ended_at = datetime.strptime(soup_find_string(table[2]).strip(), '%d-%m-%Y %H:%M')
 
-        # TODO: parse additional info and floor plan
+        wrapper_properties = content.find(class_='properties')
+        properties = [soup_find_string(prop.span.span.span).strip() if prop.span.span.span else prop.span.span.contents[-1].strip()
+                      for prop in wrapper_properties.find_all('div', class_='icon-item')]
+        energy_label = properties[0]
+        # TODO: lookup residence type
+        residence_type = properties[1].lower()
+        bedrooms = int(properties[2])
+        year = int(properties[6])
+        rooms = int(properties[7])
+        floor = int(properties[9])
+        has_elevator = properties[10] == 'ja'
+        is_senior = properties[11] == 'ja'
+
+        floor_plan_url = self.base_url() + wrapper_properties.find_next_sibling('a').attrs['href']
 
         return {
             'external_id': external_id,
+            'type': residence_type,
             # TODO: split address
             'street': None,
             'number': None,
             'city': city,
+            'neighbourhood': neighbourhood,
             'price_base': price_base,
             # TODO: consider calculating the service costs
             'price_service': None,
             'price_benefit': price_benefit,
             'price_total': price_total,
             'available_at': available_at,
-            'ended_at': ended_at
+            'ended_at': ended_at,
+            'year': year,
+            'energy_label': energy_label,
+            'rooms': rooms,
+            'bedrooms': bedrooms,
+            'floor': floor,
+            'has_elevator': has_elevator,
+            'is_senior': is_senior,
+            'floor_plan_url': floor_plan_url
         }
 
     def scrape_residences(self):
