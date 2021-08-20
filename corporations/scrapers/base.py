@@ -8,10 +8,10 @@ from ..util import PDFReader
 
 class Scraper:
 
-    def source_url(self):
+    def base_url(self) -> str:
         raise NotImplementedError()
 
-    def scrape(self):
+    def scrape_residences(self):
         raise NotImplementedError()
 
     def fetch(self, url: str, **kwargs):
