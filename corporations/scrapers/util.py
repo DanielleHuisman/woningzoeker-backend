@@ -73,6 +73,8 @@ def parse_price(text: str):
     return int(PRICE_REGEX.sub('', text))
 
 
+DUTCH_DATE_REGEX = re.compile(r'(\d{1,2})\s+([a-z]+)\s+(\d{4})')
+DUTCH_DATETIME_REGEX = re.compile(r'(\d{1,2})\s+([a-z]+)\s+(\d{4})\s+om\s+(\d{1,2}):(\d{1,2})')
 DUTCH_MONTHS = {
     'januari': 1,
     'februari': 2,
@@ -90,8 +92,36 @@ DUTCH_MONTHS = {
 
 
 def parse_date(text: str):
-    return datetime.strptime(text, '%d-%m-%Y').date()
+    t = datetime.strptime(text, '%d-%m-%Y').date()
+    # if not timezone.is_aware(t):
+    #     return timezone.make_aware(t)
+    return t
 
 
 def parse_datetime(text: str):
-    return datetime.strptime(text, '%d-%m-%Y %H:%M')
+    t = datetime.strptime(text, '%d-%m-%Y %H:%M')
+    # if not timezone.is_aware(t):
+    #     return timezone.make_aware(t)
+    return t
+
+
+def parse_timestamp(text: str):
+    t = datetime.fromisoformat(text.replace('Z', ''))
+    # if not timezone.is_aware(t):
+    #     return timezone.make_aware(t, timezone=pytz.utc)
+    return t
+
+
+def parse_dutch_date(text: str):
+    result = DUTCH_DATE_REGEX.search(text)
+    return parse_date('{0}-{1}-{2}'.format(result.group(1), DUTCH_MONTHS[result.group(2)], result.group(3))) if result else None
+
+
+def parse_dutch_dates(text: str):
+    timestamps = DUTCH_DATE_REGEX.findall(text)
+    return [parse_date('{0}-{1}-{2}'.format(timestamp[0], DUTCH_MONTHS[timestamp[1]], timestamp[2])) for timestamp in timestamps]
+
+
+def parse_dutch_datetimes(text: str):
+    timestamps = DUTCH_DATETIME_REGEX.findall(text)
+    return [parse_datetime('{0}-{1}-{2} {3}:{4}'.format(timestamp[0], DUTCH_MONTHS[timestamp[1]], *timestamp[2:5])) for timestamp in timestamps]

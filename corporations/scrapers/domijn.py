@@ -1,10 +1,5 @@
-import re
-from datetime import datetime
-
 from .base import Scraper
-from .util import soup_find_string, parse_price, parse_date, parse_datetime, DUTCH_MONTHS
-
-REACTION_DATE_TIME_REGEX = re.compile(r'(\d{1,2})\s+([a-z]+)\s+(\d{4})\s+om\s+(\d{1,2}):(\d{1,2})')
+from .util import soup_find_string, parse_price, parse_date, parse_datetime, DUTCH_DATETIME_REGEX, DUTCH_MONTHS
 
 # TODO: move session/user state management out of the scraper implementations to prevent duplication
 
@@ -91,7 +86,9 @@ class ScraperDomijn(Scraper):
         while page <= page_count:
             soup = self.fetch_html_page(f'{self.base_url()}/woningaanbod', params={
                 'page': page - 1,
-                'size': 9
+                'size': 9,
+                'advertisementType': 'rent',
+                'rentalLimit': 'below'
             })
 
             page_count = len(soup.find('nav', class_='paging').find_all('li'))
@@ -146,7 +143,7 @@ class ScraperDomijn(Scraper):
         soup = self.fetch_html_page(f'{self.base_url()}/mijndomijn/inloggen')
         verification_token = soup.find(id='usernameLogin').find('input', attrs={'name': '__RequestVerificationToken'}).attrs['value']
 
-        self.fetch_html_page(f'{self.base_url()}/mijndomijn/inloggen', method='POST', headers={
+        self.fetch(f'{self.base_url()}/mijndomijn/inloggen', method='POST', headers={
             'Content-Type': 'application/x-www-form-urlencoded'
         }, data={
             'Email': identifier,
@@ -162,11 +159,14 @@ class ScraperDomijn(Scraper):
         if not self.has_session():
             raise Exception('Already logged out')
 
-        self.fetch_html_page(f'{self.base_url()}/account/logout', params={
+        self.fetch(f'{self.base_url()}/account/logout', params={
             'returnUrl': '/'
         })
 
         self.is_logged_in = False
+
+        if self.has_session():
+            self.end_session()
 
     def get_user(self):
         if not self.is_logged_in:
@@ -200,7 +200,7 @@ class ScraperDomijn(Scraper):
             external_id = columns[0].a.attrs['href'].split('/')[-1]
             external_id = external_id[:external_id.index('?')]
 
-            timestamps = REACTION_DATE_TIME_REGEX.findall(''.join(columns[2].text))
+            timestamps = DUTCH_DATETIME_REGEX.findall(''.join(columns[2].text))
             created_at = parse_datetime('{0}-{1}-{2} {3}:{4}'.format(timestamps[0][0], DUTCH_MONTHS[timestamps[0][1]], *timestamps[0][2:5]))
             ended_at = parse_datetime('{0}-{1}-{2} {3}:{4}'.format(timestamps[1][0], DUTCH_MONTHS[timestamps[1][1]], *timestamps[1][2:5]))
 
