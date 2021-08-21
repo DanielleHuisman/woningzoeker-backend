@@ -50,17 +50,19 @@ class ScraperDomijn(Scraper):
 
         floor_plan_url = self.base_url() + wrapper_properties.find_next_sibling('a').attrs['href']
 
+        table = content.find(class_='content').find_next_sibling(class_='row').find('dl').find_all('dd')
+        price_service = parse_price(soup_find_string(table[1]))
+
         return {
             'external_id': external_id,
             'type': residence_type,
             # TODO: split address
-            'street': None,
-            'number': None,
-            'city': city,
+            # 'street': None,
+            # 'number': None,
+            # 'city': city,
             'neighbourhood': neighbourhood,
             'price_base': price_base,
-            # TODO: consider calculating the service costs
-            'price_service': None,
+            'price_service': price_service,
             'price_benefit': price_benefit,
             'price_total': price_total,
             'available_at': available_at,
@@ -115,25 +117,24 @@ class ScraperDomijn(Scraper):
                     'number': number,
                     'postal_code': postal_code,
                     'city': city,
-                    'price': price,
+                    'price_total': price,
                     'url': url,
                     'image_url': image_url
                 })
 
             page += 1
 
-        print(len(residences))
-        print(residences)
-
         for residence in residences:
             # TODO: check if this residence already exists in the database
 
             result = self.get_residence_by_url(residence['url'])
-            print(result)
+            residence.update(result)
 
             break
 
         self.end_session()
+
+        return residences
 
     def login(self, identifier: str, credentials: any):
         if not self.has_session():

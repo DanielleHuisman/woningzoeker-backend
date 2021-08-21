@@ -13,7 +13,7 @@ def test(scraper_name: str):
     else:
         raise Exception(f'Unknown scraper "{scraper_name}"')
 
-    scraper.get_residences()
+    print(scraper.get_residences())
     # scraper.login('', '')
     # print(scraper.get_user())
     # scraper.logout()
