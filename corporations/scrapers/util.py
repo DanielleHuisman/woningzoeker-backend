@@ -74,7 +74,7 @@ def parse_price(text: str):
 
 
 DUTCH_DATE_REGEX = re.compile(r'(\d{1,2})\s+([a-z]+)\s+(\d{4})')
-DUTCH_DATETIME_REGEX = re.compile(r'(\d{1,2})\s+([a-z]+)\s+(\d{4})\s+om\s+(\d{1,2}):(\d{1,2})')
+DUTCH_DATETIME_REGEX = re.compile(r'(\d{1,2})\s+([a-z]+)\s+(\d{4})\s+(?:om\s+)?(\d{1,2}):(\d{1,2})')
 DUTCH_MONTHS = {
     'januari': 1,
     'februari': 2,
@@ -115,6 +115,11 @@ def parse_timestamp(text: str):
 def parse_dutch_date(text: str):
     result = DUTCH_DATE_REGEX.search(text)
     return parse_date('{0}-{1}-{2}'.format(result.group(1), DUTCH_MONTHS[result.group(2)], result.group(3))) if result else None
+
+
+def parse_dutch_datetime(text: str):
+    result = DUTCH_DATETIME_REGEX.search(text)
+    return parse_datetime('{0}-{1}-{2} {3}:{4}'.format(result.group(1), DUTCH_MONTHS[result.group(2)], *result.group(3, 4, 5))) if result else None
 
 
 def parse_dutch_dates(text: str):

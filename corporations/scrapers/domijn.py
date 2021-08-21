@@ -42,7 +42,7 @@ class ScraperDomijn(Scraper):
         bedrooms = int(properties[2])
         year = int(properties[6])
         rooms = int(properties[7])
-        floor = int(properties[9])
+        floor = 0 if 'begane' in properties[9].lower() else int(properties[9])
         has_elevator = properties[10] == 'ja'
         is_senior = properties[11] == 'ja'
 
@@ -50,6 +50,8 @@ class ScraperDomijn(Scraper):
 
         table = content.find(class_='content').find_next_sibling(class_='row').find('dl').find_all('dd')
         price_service = parse_price(soup_find_string(table[1]))
+
+        # TODO: parse additional photos
 
         return {
             'external_id': external_id,
@@ -67,6 +69,7 @@ class ScraperDomijn(Scraper):
             'ended_at': ended_at,
             'year': year,
             'energy_label': energy_label,
+            'area': None,
             'rooms': rooms,
             'bedrooms': bedrooms,
             'floor': floor,

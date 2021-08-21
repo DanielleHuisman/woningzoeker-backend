@@ -13,11 +13,11 @@ def test(scraper_name: str):
     else:
         raise Exception(f'Unknown scraper "{scraper_name}"')
 
-    # print(scraper.get_residences())
-    scraper.login('', '')
+    print(scraper.get_residences())
+    # scraper.login('', '')
     # print(scraper.get_user())
-    print(scraper.get_reactions())
-    scraper.logout()
+    # print(scraper.get_reactions())
+    # scraper.logout()
 
 
 test('dewoonplaats')
