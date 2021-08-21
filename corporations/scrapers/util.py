@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from io import BytesIO
 from typing import List, Optional
 
@@ -70,3 +71,27 @@ PRICE_REGEX = re.compile(r'\D')
 
 def parse_price(text: str):
     return int(PRICE_REGEX.sub('', text))
+
+
+DUTCH_MONTHS = {
+    'januari': 1,
+    'februari': 2,
+    'maart': 3,
+    'april': 4,
+    'mei': 5,
+    'juni': 6,
+    'juli': 7,
+    'augustus': 8,
+    'september': 9,
+    'oktober': 10,
+    'november': 11,
+    'december': 12
+}
+
+
+def parse_date(text: str):
+    return datetime.strptime(text, '%d-%m-%Y').date()
+
+
+def parse_datetime(text: str):
+    return datetime.strptime(text, '%d-%m-%Y %H:%M')

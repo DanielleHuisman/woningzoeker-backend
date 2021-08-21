@@ -1,7 +1,10 @@
+import re
 from datetime import datetime
 
 from .base import Scraper
-from .util import soup_find_string, parse_price
+from .util import soup_find_string, parse_price, parse_date, parse_datetime, DUTCH_MONTHS
+
+REACTION_DATE_TIME_REGEX = re.compile(r'(\d{1,2})\s+([a-z]+)\s+(\d{4})\s+om\s+(\d{1,2}):(\d{1,2})')
 
 # TODO: move session/user state management out of the scraper implementations to prevent duplication
 
@@ -32,8 +35,8 @@ class ScraperDomijn(Scraper):
         price_base = parse_price(soup_find_string(wrapper_prices[2]))
 
         table = content.find('dl').find_all('dd')
-        available_at = datetime.strptime(soup_find_string(table[1]).strip(), '%d-%m-%Y').date()
-        ended_at = datetime.strptime(soup_find_string(table[2]).strip(), '%d-%m-%Y %H:%M')
+        available_at = parse_date(soup_find_string(table[1]).strip())
+        ended_at = parse_datetime(soup_find_string(table[2]).strip())
 
         wrapper_properties = content.find(class_='properties')
         properties = [soup_find_string(prop.span.span.span).strip() if prop.span.span.span else prop.span.span.contents[-1].strip()
@@ -181,3 +184,34 @@ class ScraperDomijn(Scraper):
             'email': email,
             'phone_number': phone_number,
         }
+
+    def get_reactions(self):
+        if not self.is_logged_in:
+            raise Exception('Not logged in')
+
+        reactions = []
+
+        soup = self.fetch_html_page(f'{self.base_url()}/woningzoekende/reageren/overzicht')
+
+        rows = soup.find('table', class_='table-status').tbody.find_all('tr')
+
+        for row in rows:
+            columns = row.find_all(['th', 'td'])
+            external_id = columns[0].a.attrs['href'].split('/')[-1]
+            external_id = external_id[:external_id.index('?')]
+
+            timestamps = REACTION_DATE_TIME_REGEX.findall(''.join(columns[2].text))
+            created_at = parse_datetime('{0}-{1}-{2} {3}:{4}'.format(timestamps[0][0], DUTCH_MONTHS[timestamps[0][1]], *timestamps[0][2:5]))
+            ended_at = parse_datetime('{0}-{1}-{2} {3}:{4}'.format(timestamps[1][0], DUTCH_MONTHS[timestamps[1][1]], *timestamps[1][2:5]))
+
+            rank_number_text = soup_find_string(columns[3].span).strip().lower()
+            rank_number = None if rank_number_text == 'volgt' else int(rank_number_text)
+
+            reactions.append({
+                'external_id': external_id,
+                'created_at': created_at,
+                'ended_at': ended_at,
+                'rank_number': rank_number
+            })
+
+        return reactions

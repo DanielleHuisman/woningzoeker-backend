@@ -33,6 +33,9 @@ class Scraper:
     def get_user(self):
         raise NotImplementedError()
 
+    def get_reactions(self):
+        raise NotImplementedError()
+
     def has_session(self):
         return self.session is not None
 
