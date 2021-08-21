@@ -3,16 +3,18 @@ from datetime import datetime
 from .base import Scraper
 from .util import soup_find_string, parse_price
 
+# TODO: move session/user state management out of the scraper implementations to prevent duplication
+
 
 class ScraperDomijn(Scraper):
 
     def base_url(self):
         return 'https://www.domijn.nl'
 
-    def scrape_residence(self, external_id: str):
-        return self.scrape_residence_by_url(f'${self.base_url()}/woningaanbod/detail/{external_id}')
+    def get_residence(self, external_id: str):
+        return self.get_residence_by_url(f'${self.base_url()}/woningaanbod/detail/{external_id}')
 
-    def scrape_residence_by_url(self, url: str):
+    def get_residence_by_url(self, url: str):
         soup = self.fetch_html_page(url)
 
         content = soup.find(id='content-anchor')
@@ -73,7 +75,7 @@ class ScraperDomijn(Scraper):
             'floor_plan_url': floor_plan_url
         }
 
-    def scrape_residences(self):
+    def get_residences(self):
         self.start_session()
 
         residences = []
@@ -126,9 +128,55 @@ class ScraperDomijn(Scraper):
         for residence in residences:
             # TODO: check if this residence already exists in the database
 
-            result = self.scrape_residence_by_url(residence['url'])
+            result = self.get_residence_by_url(residence['url'])
             print(result)
 
             break
 
         self.end_session()
+
+    def login(self, identifier: str, credentials: any):
+        if not self.has_session():
+            self.start_session()
+
+        soup = self.fetch_html_page(f'{self.base_url()}/mijndomijn/inloggen')
+        verification_token = soup.find(id='usernameLogin').find('input', attrs={'name': '__RequestVerificationToken'}).attrs['value']
+
+        self.fetch_html_page(f'{self.base_url()}/mijndomijn/inloggen', method='POST', headers={
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }, data={
+            'Email': identifier,
+            'Password': credentials,
+            'RememberMe': 'False',
+            'ReturnUrl': '',
+            '__RequestVerificationToken': verification_token
+        })
+
+        self.is_logged_in = True
+
+    def logout(self):
+        if not self.has_session():
+            raise Exception('Already logged out')
+
+        self.fetch_html_page(f'{self.base_url()}/account/logout', params={
+            'returnUrl': '/'
+        })
+
+        self.is_logged_in = False
+
+    def get_user(self):
+        if not self.is_logged_in:
+            raise Exception('Not logged in')
+
+        soup = self.fetch_html_page(f'{self.base_url()}/mijndomijn/persoonlijke-gegevens')
+
+        values = soup.find('table', class_='summary-table').tbody.find_all('td')
+        name = soup_find_string(values[0])
+        phone_number = soup_find_string(values[4])
+        email = soup_find_string(values[5])
+
+        return {
+            'name': name,
+            'email': email,
+            'phone_number': phone_number,
+        }

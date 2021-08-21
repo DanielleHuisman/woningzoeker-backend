@@ -9,21 +9,37 @@ from corporations.scrapers.util import PDFReader
 
 class Scraper:
 
-    session: Optional[requests.Session]
+    session: Optional[requests.Session] = None
+    is_logged_in: bool = False
 
     def base_url(self) -> str:
         raise NotImplementedError()
 
-    def scrape_residence(self, external_id: str):
+    def get_residence(self, external_id: str):
         raise NotImplementedError()
 
-    def scrape_residence_by_url(self, url: str):
+    def get_residence_by_url(self, url: str):
         raise NotImplementedError()
 
-    def scrape_residences(self):
+    def get_residences(self):
         raise NotImplementedError()
+
+    def login(self, identifier: str, credentials: any):
+        raise NotImplementedError()
+
+    def logout(self):
+        raise NotImplementedError()
+
+    def get_user(self):
+        raise NotImplementedError()
+
+    def has_session(self):
+        return self.session is not None
 
     def start_session(self):
+        if self.session:
+            raise Exception('Session was already started')
+
         self.session = requests.Session()
 
     def end_session(self):
@@ -33,8 +49,8 @@ class Scraper:
     def request(self, method: str, url: str, **kwargs):
         return self.session.request(method, url, **kwargs) if self.session else requests.request(method, url, **kwargs)
 
-    def fetch(self, url: str, **kwargs):
-        response = self.request('GET', url, **kwargs)
+    def fetch(self, url: str, method: str = 'GET', **kwargs):
+        response = self.request(method, url, **kwargs)
 
         if 200 <= response.status_code <= 299:
             return response

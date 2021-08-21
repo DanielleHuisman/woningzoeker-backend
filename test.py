@@ -7,13 +7,16 @@ def test(scraper_name: str):
 
     if scraper_name == 'domijn':
         scraper = ScraperDomijn()
-    elif scraper_name == 'dewoonplaats':
+    # elif scraper_name == 'dewoonplaats':
         # scraper = ScraperDeWoonplaats()
-        pass
+        # pass
     else:
         raise Exception(f'Unknown scraper "{scraper_name}"')
 
-    scraper.scrape_residences()
+    scraper.get_residences()
+    # scraper.login('', '')
+    # print(scraper.get_user())
+    # scraper.logout()
 
 
 test('domijn')
