@@ -26,3 +26,6 @@ class Registration(models.Model):
 
     corporation = models.ForeignKey(Corporation, related_name='registrations', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='registrations', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.corporation.name} - {self.identifier}'

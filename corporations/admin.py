@@ -13,3 +13,5 @@ class CorporationAdmin(ModelAdmin):
 class RegistrationAdmin(ModelAdmin):
     list_display = ['id', 'user', 'corporation', 'identifier']
     list_filter = ['user', 'corporation']
+
+    # TODO: hide credentials field, but allow updating

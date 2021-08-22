@@ -1,9 +1,8 @@
 from uuid import uuid4
 
 from django.db import models
-from django.contrib.auth.models import User
 
-from corporations.models import Corporation
+from corporations.models import Corporation, Registration
 
 
 class City(models.Model):
@@ -67,5 +66,8 @@ class Reaction(models.Model):
 
     rank_number = models.PositiveSmallIntegerField(blank=True, null=True)
 
-    residence = models.ForeignKey(Corporation, related_name='reactions', on_delete=models.CASCADE)
-    user = models.ForeignKey(User, related_name='reactions', on_delete=models.CASCADE)
+    residence = models.ForeignKey(Residence, related_name='reactions', on_delete=models.CASCADE)
+    registration = models.ForeignKey(Registration, related_name='reactions', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.registration.identifier} - {str(self.residence)}'
