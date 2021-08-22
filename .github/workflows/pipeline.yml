@@ -16,6 +16,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Sanitize repository slug
+        uses: actions/github-script@v4
+        id: repository_slug
+        with:
+          result-encoding: string
+          script: return github.repository.toLowerCase()
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Login to GitHub Container Registry
@@ -30,7 +36,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
+          tags: ghcr.io/${{ steps.repository_slug.outputs.result }}:${{ github.sha }}
 
   test:
     needs: build
@@ -55,6 +61,7 @@ jobs:
       - name: Tag Docker image with branch name
         run: |
           DOCKER_IMAGE=ghcr.io/${{ github.repository }}
+          DOCKER_IMAGE=${DOCKER_IMAGE,,}
           TAG=$(echo ${GITHUB_REF#refs/heads/} | sed -r 's#/+#-#g')
           docker pull $DOCKER_IMAGE:$GITHUB_SHA
           docker tag $DOCKER_IMAGE:$GITHUB_SHA $DOCKER_IMAGE:$TAG
