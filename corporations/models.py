@@ -8,5 +8,7 @@ class Corporation(models.Model):
 
     name = models.CharField(max_length=255, unique=True)
 
+    cities = models.ManyToManyField('residences.City', related_name='corporations')
+
     def __str__(self):
         return self.name
