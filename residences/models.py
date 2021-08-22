@@ -7,6 +7,9 @@ from corporations.models import Corporation
 
 
 class City(models.Model):
+    class Meta:
+        verbose_name_plural = 'cities'
+
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
 
     name = models.CharField(max_length=255, unique=True)

@@ -198,3 +198,8 @@ Q_CLUSTER = {
         }
     } if SENTRY_DSN else None
 }
+
+
+# Fernet Encryption
+
+FERNET_KEYS = os.getenv('FERNET_KEYS', '').split(',')
