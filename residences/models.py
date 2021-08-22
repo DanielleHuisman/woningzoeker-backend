@@ -19,10 +19,11 @@ class City(models.Model):
 
 class Residence(models.Model):
     class Type(models.TextChoices):
-        HOUSE = 'HOUSE_DETACHED',
+        HOUSE_DETACHED = 'HOUSE_DETACHED',
         HOUSE_SEMI_DETACHED = 'HOUSE_SEMI_DETACHED',
         HOUSE_DUPLEX = 'HOUSE_DUPLEX',
         HOUSE_TERRACED = 'HOUSE_TERRACED',
+        HOUSE_UNKNOWN = 'HOUSE_UNKNOWN',
         APARTMENT = 'APARTMENT',
         MAISONNETTE = 'MAISONNETTE'
         UNKNOWN = 'UNKNOWN'
@@ -40,7 +41,7 @@ class Residence(models.Model):
     price_service = models.PositiveIntegerField(blank=True, null=True)
     price_benefit = models.PositiveIntegerField(blank=True, null=True)
     price_total = models.PositiveIntegerField()
-    energy_labels = models.CharField(max_length=1, blank=True, null=True)
+    energy_label = models.CharField(max_length=1, blank=True, null=True)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
     area = models.PositiveSmallIntegerField(blank=True, null=True)
     rooms = models.PositiveSmallIntegerField(blank=True, null=True)
@@ -48,7 +49,7 @@ class Residence(models.Model):
     floor = models.PositiveSmallIntegerField(blank=True, null=True)
     has_elevator = models.BooleanField(blank=True, null=True)
     available_at = models.DateField(blank=True, null=True)
-    reactions_ended_at = models.DateField(blank=True, null=True)
+    reactions_ended_at = models.DateTimeField(blank=True, null=True)
     url = models.TextField()
     photo_url = models.TextField(blank=True, null=True)
     floor_plan_url = models.TextField(blank=True, null=True)

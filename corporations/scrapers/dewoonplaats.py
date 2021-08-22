@@ -2,6 +2,9 @@ import json
 import re
 from typing import Optional, Union
 
+from residences.models import Residence
+from residences.util import lookup_city, lookup_residence_type
+
 from .base import Scraper
 from .util import parse_price, parse_dutch_date, parse_dutch_datetime
 
@@ -13,41 +16,44 @@ RANK_NUMBER_REGEX = re.compile(r'uitslag: (\d+)')
 
 class ScraperDeWoonplaats(Scraper):
 
+    def get_handle(self):
+        return 'dewoonplaats'
+
     def base_url(self):
         return 'https://www.dewoonplaats.nl'
 
     def convert_residence(self, result: dict):
         external_id = result['id']
+
         # TODO: parse additional photos
 
-        return {
-            'external_id': external_id,
-            # TODO: lookup type
-            'type': result['soort'][0].lower(),
-            'street': result['straat'],
-            'number': result['huisnummer'] + result['huisnummertoevoeging'],
-            'postal_code': result['postcode'].replace(' ', ''),
-            'city': result['plaats'],
-            'neighbourhood': result['wijk'].split('-')[-1].strip(),
-            'price_base': int(result['relevante_huurprijs'] * 100),
-            'price_service': parse_price(result['servicekosten']),
-            'price_benefit': parse_price(result['toeslagprijs']),
-            'price_total': parse_price(result['brutoprijs']),
-            'available_at': parse_dutch_date(result['aanvaardingsdatum']),
-            'ended_at': parse_dutch_datetime(result['reactiedatum']),
-            'year': result['bouwjaar'],
-            'energy_label': result['energielabel'],
-            'area': round(float(result['woonoppervlak'].replace(',', '.'))) if len(result['woonoppervlak']) > 0 else None,
-            'rooms': None,
-            'bedrooms': result['slaapkamers'],
-            'floor': int(result['etage']) if len(result['etage']) > 0 and 'begane' not in result['etage'].lower() else 0,
-            'has_elevator': result['lift'],
-            # TODO: also include resullt['criteria'] (e.g. 55+)
-            'is_senior': 'senior' in result['woningtype'].lower(),
-            'url': f'{self.base_url()}/ik-zoek-woonruimte/!/woning/{external_id}',
-            'photo_url': self.base_url() + result['overview'],
-            'floor_plan_url': None
-        }
+        return Residence(
+            external_id=external_id,
+            street=result['straat'],
+            number=result['huisnummer'] + result['huisnummertoevoeging'],
+            postal_code=result['postcode'].replace(' ', ''),
+            city=lookup_city(result['plaats']),
+            type=lookup_residence_type(result['soort'][0].lower(), result['woningtype'].lower()),
+            neighbourhood=result['wijk'].split('-')[-1].strip(),
+            price_base=int(result['relevante_huurprijs'] * 100),
+            price_service=parse_price(result['servicekosten']),
+            price_benefit=parse_price(result['toeslagprijs']),
+            price_total=parse_price(result['brutoprijs']),
+            energy_label=result['energielabel'][0:1],
+            year=result['bouwjaar'],
+            area=round(float(result['woonoppervlak'].replace(',', '.'))) if len(result['woonoppervlak']) > 0 else None,
+            rooms=None,
+            bedrooms=result['slaapkamers'],
+            floor=int(result['etage']) if len(result['etage']) > 0 and 'begane' not in result['etage'].lower() else 0,
+            has_elevator=result['lift'],
+            available_at=parse_dutch_date(result['aanvaardingsdatum']),
+            reactions_ended_at=parse_dutch_datetime(result['reactiedatum']),
+            url=f'{self.base_url()}/ik-zoek-woonruimte/!/woning/{external_id}',
+            photo_url=self.base_url() + result['overview'],
+            floor_plan_url=None
+            # TODO: also include result['criteria'] (e.g. 55+)
+            # is_senior='senior' in result['woningtype'].lower()
+        )
 
     def get_residence(self, external_id: str):
         data = self.json_request('POST', f'{self.base_url()}/wh_services/woonplaats_digitaal/woonvinder', data={
@@ -188,6 +194,7 @@ class ScraperDeWoonplaats(Scraper):
             **(kwargs['headers'] if 'headers' in kwargs else {})
         }, data=json.dumps(data) if data else None)
 
+        # The API always returns status 200, so check the response data for errors
         response_data = response.json()
         if 'error' in response_data and response_data['error']:
             raise Exception(response_data['error'])

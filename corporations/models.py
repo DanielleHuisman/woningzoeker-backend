@@ -10,6 +10,7 @@ class Corporation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
 
     name = models.CharField(max_length=255, unique=True)
+    handle = models.CharField(max_length=255, unique=True)
 
     cities = models.ManyToManyField('residences.City', related_name='corporations')
 

@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from corporations.scrapers.util import PDFReader
+from residences.models import Residence
 
 
 class Scraper:
@@ -12,22 +13,25 @@ class Scraper:
     session: Optional[requests.Session] = None
     is_logged_in: bool = False
 
+    def get_handle(self) -> str:
+        raise NotImplementedError()
+
     def base_url(self) -> str:
         raise NotImplementedError()
 
-    def get_residence(self, external_id: str):
+    def get_residence(self, external_id: str) -> Residence:
         raise NotImplementedError()
 
-    def get_residence_by_url(self, url: str):
+    def get_residence_by_url(self, url: str) -> Residence:
         raise NotImplementedError()
 
-    def get_residences(self):
+    def get_residences(self) -> list[Residence]:
         raise NotImplementedError()
 
     def login(self, identifier: str, credentials: any):
         raise NotImplementedError()
 
-    def logout(self):
+    def logout(self) -> None:
         raise NotImplementedError()
 
     def get_user(self):
@@ -36,16 +40,16 @@ class Scraper:
     def get_reactions(self):
         raise NotImplementedError()
 
-    def has_session(self):
+    def has_session(self) -> bool:
         return self.session is not None
 
-    def start_session(self):
+    def start_session(self) -> None:
         if self.session:
             raise Exception('Session was already started')
 
         self.session = requests.Session()
 
-    def end_session(self):
+    def end_session(self) -> None:
         self.session.close()
         self.session = None
 

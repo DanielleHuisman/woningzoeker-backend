@@ -1,3 +1,7 @@
+from residences.models import Residence
+
+from residences.util import lookup_city, lookup_residence_type, is_existing_residence
+
 from .base import Scraper
 from .util import soup_find_string, parse_price, parse_date, parse_datetime, DUTCH_DATETIME_REGEX, DUTCH_MONTHS
 
@@ -5,6 +9,9 @@ from .util import soup_find_string, parse_price, parse_date, parse_datetime, DUT
 
 
 class ScraperDomijn(Scraper):
+
+    def get_handle(self):
+        return 'domijn'
 
     def base_url(self):
         return 'https://www.domijn.nl'
@@ -37,7 +44,6 @@ class ScraperDomijn(Scraper):
         properties = [soup_find_string(prop.span.span.span).strip() if prop.span.span.span else prop.span.span.contents[-1].strip()
                       for prop in wrapper_properties.find_all('div', class_='icon-item')]
         energy_label = properties[0]
-        # TODO: lookup residence type
         residence_type = properties[1].lower()
         bedrooms = int(properties[2])
         year = int(properties[6])
@@ -53,35 +59,37 @@ class ScraperDomijn(Scraper):
 
         # TODO: parse additional photos
 
-        return {
-            'external_id': external_id,
-            'type': residence_type,
+        return Residence(
+            external_id=external_id,
             # TODO: split address
             # 'street': None,
             # 'number': None,
-            # 'city': city,
-            'neighbourhood': neighbourhood,
-            'price_base': price_base,
-            'price_service': price_service,
-            'price_benefit': price_benefit,
-            'price_total': price_total,
-            'available_at': available_at,
-            'ended_at': ended_at,
-            'year': year,
-            'energy_label': energy_label,
-            'area': None,
-            'rooms': rooms,
-            'bedrooms': bedrooms,
-            'floor': floor,
-            'has_elevator': has_elevator,
-            'is_senior': is_senior,
-            'floor_plan_url': floor_plan_url
-        }
+            # 'postal_code': None,
+            city=lookup_city(city),
+            type=lookup_residence_type(residence_type),
+            neighbourhood=neighbourhood,
+            price_base=price_base,
+            price_service=price_service,
+            price_benefit=price_benefit,
+            price_total=price_total,
+            energy_label=energy_label,
+            year=year,
+            area=None,
+            rooms=rooms,
+            bedrooms=bedrooms,
+            floor=floor,
+            available_at=available_at,
+            reactions_ended_at=ended_at,
+            has_elevator=has_elevator,
+            url=None,
+            photo_url=None,
+            floor_plan_url=floor_plan_url
+            # TODO: use criteria instead
+            # is_senior=is_senior
+        )
 
     def get_residences(self):
-        self.start_session()
-
-        residences = []
+        residence_stubs = []
 
         page = 1
         page_count = 1
@@ -106,7 +114,7 @@ class ScraperDomijn(Scraper):
                 postal_code = split[5].replace(' ', '')
 
                 url = self.base_url() + url
-                image_url = self.base_url() + article.find('img').attrs['src']
+                photo_url = self.base_url() + article.find('img').attrs['src']
 
                 wrapper_info = article.find(class_='info')
                 # address = soup_find_string(wrapper_info.find(class_='title'))
@@ -115,27 +123,35 @@ class ScraperDomijn(Scraper):
                 wrapper_price = article.find(class_='price')
                 price = parse_price(soup_find_string(wrapper_price.find(class_='price-text')))
 
-                residences.append({
+                residence_stubs.append({
                     'street': street,
                     'number': number,
                     'postal_code': postal_code,
                     'city': city,
                     'price_total': price,
                     'url': url,
-                    'image_url': image_url
+                    'photo_url': photo_url
                 })
 
             page += 1
 
-        for residence in residences:
-            # TODO: check if this residence already exists in the database
+        residences = []
 
-            result = self.get_residence_by_url(residence['url'])
-            residence.update(result)
+        for residence_stub in residence_stubs:
+            if is_existing_residence(url=residence_stub['url']):
+                continue
 
-            break
+            residence = self.get_residence_by_url(residence_stub['url'])
 
-        self.end_session()
+            residence.street = residence_stub['street']
+            residence.number = residence_stub['number']
+            residence.postal_code = residence_stub['postal_code']
+            residence.url = residence_stub['url']
+            residence.photo_url = residence_stub['photo_url']
+            if not hasattr(residence, 'city'):
+                residence.city = lookup_city(residence_stub['city'])
+
+            residences.append(residence)
 
         return residences
 
