@@ -1,9 +1,11 @@
+import pytz
 import re
 from datetime import datetime
 from io import BytesIO
 from typing import List, Optional
 
 from bs4.element import Tag
+from django.utils import timezone
 from pdfreader import SimplePDFViewer
 
 
@@ -70,7 +72,10 @@ PRICE_REGEX = re.compile(r'\D')
 
 
 def parse_price(text: str):
-    return int(PRICE_REGEX.sub('', text))
+    try:
+        return int(PRICE_REGEX.sub('', text))
+    except ValueError:
+        return None
 
 
 DUTCH_DATE_REGEX = re.compile(r'(\d{1,2})\s+([a-z]+)\s+(\d{4})')
@@ -93,22 +98,22 @@ DUTCH_MONTHS = {
 
 def parse_date(text: str):
     t = datetime.strptime(text, '%d-%m-%Y').date()
-    # if not timezone.is_aware(t):
-    #     return timezone.make_aware(t)
+    if not timezone.is_aware(t):
+        return timezone.make_aware(t)
     return t
 
 
 def parse_datetime(text: str):
     t = datetime.strptime(text, '%d-%m-%Y %H:%M')
-    # if not timezone.is_aware(t):
-    #     return timezone.make_aware(t)
+    if not timezone.is_aware(t):
+        return timezone.make_aware(t)
     return t
 
 
 def parse_timestamp(text: str):
     t = datetime.fromisoformat(text.replace('Z', ''))
-    # if not timezone.is_aware(t):
-    #     return timezone.make_aware(t, timezone=pytz.utc)
+    if not timezone.is_aware(t):
+        return timezone.make_aware(t, timezone=pytz.utc)
     return t
 
 
