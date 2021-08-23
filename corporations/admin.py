@@ -20,7 +20,10 @@ class CorporationAdmin(ModelAdmin):
 
 @register(Registration)
 class RegistrationAdmin(ModelAdmin):
-    list_display = ['id', 'user', 'corporation', 'identifier']
+    list_display = ['id', 'user', 'corporation', 'identifier', 'reaction_count']
     list_filter = ['user', 'corporation']
+
+    def reaction_count(self, registration):
+        return registration.reactions.count()
 
     # TODO: hide credentials field, but allow updating
