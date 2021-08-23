@@ -25,7 +25,11 @@ RESIDENCE_TYPE_BY_TEXT: dict[str, Residence.Type] = {
 
 
 def lookup_city(name: str) -> City:
-    return City.objects.get(name=name)
+    city = City.objects.filter(name=name).first()
+    if not city:
+        city = City(name=name)
+        city.save()
+    return city
 
 
 def lookup_residence_type(name: str, alternative_name: str) -> Residence.Type:
