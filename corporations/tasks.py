@@ -104,7 +104,7 @@ def scrape_reactions():
                         # Create the reaction
                         reaction = Reaction(
                             created_at=scraped_reaction['created_at'],
-                            rank_number=reaction['rank_number'],
+                            rank_number=scraped_reaction['rank_number'],
                             registration=registration,
                             residence=residence
                         )
