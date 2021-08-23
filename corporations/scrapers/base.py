@@ -62,8 +62,9 @@ class Scraper:
         self.session = requests.Session()
 
     def end_session(self) -> None:
-        self.session.close()
-        self.session = None
+        if self.session:
+            self.session.close()
+            self.session = None
 
     def request(self, method: str, url: str, **kwargs):
         return self.session.request(method, url, **kwargs) if self.session else requests.request(method, url, **kwargs)

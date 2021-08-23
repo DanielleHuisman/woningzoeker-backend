@@ -35,7 +35,7 @@ class ScraperDeWoonplaats(Scraper):
             city=lookup_city(result['plaats']),
             type=lookup_residence_type(result['soort'][0].lower(), result['woningtype'].lower()),
             neighbourhood=result['wijk'].split('-')[-1].strip(),
-            price_base=int(result['relevante_huurprijs'] * 100),
+            price_base=parse_price(result['nettoprijs']),
             price_service=parse_price(result['servicekosten']),
             price_benefit=parse_price(result['toeslagprijs']),
             price_total=parse_price(result['brutoprijs']),
