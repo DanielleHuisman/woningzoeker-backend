@@ -18,8 +18,12 @@ class ScrapedReaction(TypedDict):
 
 class Scraper:
 
-    session: Optional[requests.Session] = None
-    is_logged_in: bool = False
+    session: Optional[requests.Session]
+    is_logged_in: bool
+
+    def __init__(self):
+        self.session = None
+        self.is_logged_in = False
 
     def get_handle(self) -> str:
         raise NotImplementedError()
@@ -53,7 +57,7 @@ class Scraper:
 
     def start_session(self) -> None:
         if self.session:
-            raise Exception('Session was already started')
+            self.end_session()
 
         self.session = requests.Session()
 

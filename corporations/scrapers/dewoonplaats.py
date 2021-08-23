@@ -96,9 +96,6 @@ class ScraperDeWoonplaats(Scraper):
         return residences
 
     def login(self, identifier: str, credentials: any):
-        if not self.has_session():
-            self.start_session()
-
         data = self.json_request('POST', f'{self.base_url()}/wh_services/wrd/auth', data={
             'id': 1,
             'method': 'Login',

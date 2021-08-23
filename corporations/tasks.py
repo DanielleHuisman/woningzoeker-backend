@@ -15,7 +15,7 @@ def add_schedule(name: str, func, **kwargs):
 
 
 def initialize_tasks():
-    add_schedule('scrape_residence', 'corporations.tasks.scrape_residences',
+    add_schedule('scrape_residences', 'corporations.tasks.scrape_residences',
                  schedule_type=Schedule.CRON, cron='00 */2 * * *')
 
     add_schedule('scrape_reactions', 'corporations.tasks.scrape_reactions',
