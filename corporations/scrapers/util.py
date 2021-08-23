@@ -114,19 +114,25 @@ def parse_timestamp(text: str):
 
 def parse_dutch_date(text: str):
     result = DUTCH_DATE_REGEX.search(text)
-    return parse_date('{0}-{1}-{2}'.format(result.group(1), DUTCH_MONTHS[result.group(2)], result.group(3))) if result else None
+    return parse_date('{0}-{1}-{2}'.format(
+        result.group(1), DUTCH_MONTHS[result.group(2)], result.group(3))
+    ) if result else None
 
 
 def parse_dutch_datetime(text: str):
     result = DUTCH_DATETIME_REGEX.search(text)
-    return parse_datetime('{0}-{1}-{2} {3}:{4}'.format(result.group(1), DUTCH_MONTHS[result.group(2)], *result.group(3, 4, 5))) if result else None
+    return parse_datetime('{0}-{1}-{2} {3}:{4}'.format(
+        result.group(1), DUTCH_MONTHS[result.group(2)], *result.group(3, 4, 5))
+    ) if result else None
 
 
 def parse_dutch_dates(text: str):
     timestamps = DUTCH_DATE_REGEX.findall(text)
-    return [parse_date('{0}-{1}-{2}'.format(timestamp[0], DUTCH_MONTHS[timestamp[1]], timestamp[2])) for timestamp in timestamps]
+    return [parse_date('{0}-{1}-{2}'.format(timestamp[0], DUTCH_MONTHS[timestamp[1]], timestamp[2]))
+            for timestamp in timestamps]
 
 
 def parse_dutch_datetimes(text: str):
     timestamps = DUTCH_DATETIME_REGEX.findall(text)
-    return [parse_datetime('{0}-{1}-{2} {3}:{4}'.format(timestamp[0], DUTCH_MONTHS[timestamp[1]], *timestamp[2:5])) for timestamp in timestamps]
+    return [parse_datetime('{0}-{1}-{2} {3}:{4}'.format(timestamp[0], DUTCH_MONTHS[timestamp[1]], *timestamp[2:5]))
+            for timestamp in timestamps]

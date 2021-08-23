@@ -5,7 +5,7 @@ from typing import Optional, Union
 from residences.models import Residence
 from residences.util import lookup_city, lookup_residence_type
 
-from .base import Scraper
+from .base import Scraper, ScrapedReaction
 from .util import parse_price, parse_dutch_date, parse_dutch_datetime
 
 # TODO: move session/user state management out of the scraper implementations to prevent duplication
@@ -158,7 +158,7 @@ class ScraperDeWoonplaats(Scraper):
         if not self.is_logged_in:
             raise Exception('Not logged in')
 
-        reactions = []
+        reactions: list[ScrapedReaction] = []
 
         soup = self.fetch_html_page(f'{self.base_url()}/mijn-woonplaats/!/mijn-woonvinder')
         ids = soup.find(id='woninglist-replies').attrs['data-woningids'].split(',')

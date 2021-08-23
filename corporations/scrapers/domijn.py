@@ -2,8 +2,8 @@ from residences.models import Residence
 
 from residences.util import lookup_city, lookup_residence_type, is_existing_residence
 
-from .base import Scraper
-from .util import soup_find_string, parse_price, parse_date, parse_datetime, DUTCH_DATETIME_REGEX, DUTCH_MONTHS
+from .base import Scraper, ScrapedReaction
+from .util import soup_find_string, parse_price, parse_date, parse_datetime, parse_dutch_datetimes
 
 # TODO: move session/user state management out of the scraper implementations to prevent duplication
 
@@ -42,7 +42,7 @@ class ScraperDomijn(Scraper):
 
         wrapper_properties = content.find(class_='properties')
         items = [{
-            'icon': prop.i.attrs['class'].split('--')[-1],
+            'icon': prop.i.attrs['class'][-1].split('--')[-1],
             'text': soup_find_string(prop.span.span.span).strip() if prop.span.span.span else prop.span.span.contents[-1].strip()
         } for prop in wrapper_properties.find_all('div', class_='icon-item')]
 
@@ -223,7 +223,7 @@ class ScraperDomijn(Scraper):
         if not self.is_logged_in:
             raise Exception('Not logged in')
 
-        reactions = []
+        reactions: list[ScrapedReaction] = []
 
         soup = self.fetch_html_page(f'{self.base_url()}/woningzoekende/reageren/overzicht')
 
@@ -234,9 +234,9 @@ class ScraperDomijn(Scraper):
             external_id = columns[0].a.attrs['href'].split('/')[-1]
             external_id = external_id[:external_id.index('?')]
 
-            timestamps = DUTCH_DATETIME_REGEX.findall(''.join(columns[2].text))
-            created_at = parse_datetime('{0}-{1}-{2} {3}:{4}'.format(timestamps[0][0], DUTCH_MONTHS[timestamps[0][1]], *timestamps[0][2:5]))
-            ended_at = parse_datetime('{0}-{1}-{2} {3}:{4}'.format(timestamps[1][0], DUTCH_MONTHS[timestamps[1][1]], *timestamps[1][2:5]))
+            timestamps = parse_dutch_datetimes(''.join(columns[2].text))
+            created_at = timestamps[0].date()
+            ended_at = timestamps[1]
 
             rank_number_text = soup_find_string(columns[3].span).strip().lower()
             rank_number = None if rank_number_text == 'volgt' else int(rank_number_text)
@@ -245,7 +245,7 @@ class ScraperDomijn(Scraper):
                 'external_id': external_id,
                 'created_at': created_at,
                 'ended_at': ended_at,
-                'rank_number': rank_number
+                'rank_number': rank_number,
             })
 
         return reactions

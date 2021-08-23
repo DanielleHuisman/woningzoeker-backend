@@ -1,11 +1,19 @@
+from datetime import date, datetime
 from io import BytesIO
-from typing import Optional
+from typing import Optional, TypedDict
 
 import requests
 from bs4 import BeautifulSoup
 
 from corporations.scrapers.util import PDFReader
 from residences.models import Residence
+
+
+class ScrapedReaction(TypedDict):
+    external_id: str
+    created_at: date
+    ended_at: Optional[datetime]
+    rank_number: Optional[int]
 
 
 class Scraper:
@@ -37,7 +45,7 @@ class Scraper:
     def get_user(self):
         raise NotImplementedError()
 
-    def get_reactions(self):
+    def get_reactions(self) -> list[ScrapedReaction]:
         raise NotImplementedError()
 
     def has_session(self) -> bool:
