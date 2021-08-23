@@ -31,10 +31,10 @@ class Scraper:
     def base_url(self) -> str:
         raise NotImplementedError()
 
-    def get_residence(self, external_id: str) -> Residence:
+    def get_residence(self, external_id: str) -> Optional[Residence]:
         raise NotImplementedError()
 
-    def get_residence_by_url(self, url: str) -> Residence:
+    def get_residence_by_url(self, url: str) -> Optional[Residence]:
         raise NotImplementedError()
 
     def get_residences(self) -> list[Residence]:
