@@ -32,9 +32,9 @@ def lookup_city(name: str) -> City:
     return city
 
 
-def lookup_residence_type(name: str, alternative_name: str) -> Residence.Type:
+def lookup_residence_type(name: str, alternative_name: str = None) -> Residence.Type:
     result = RESIDENCE_TYPE_BY_TEXT.get(name.lower(), Residence.Type.UNKNOWN)
-    if result in [Residence.Type.HOUSE_UNKNOWN, Residence.Type.UNKNOWN]:
+    if alternative_name and result in [Residence.Type.HOUSE_UNKNOWN, Residence.Type.UNKNOWN]:
         alternative_result = RESIDENCE_TYPE_BY_TEXT.get(alternative_name.lower(), Residence.Type.UNKNOWN)
         if alternative_result != Residence.Type.UNKNOWN:
             return alternative_result
