@@ -41,16 +41,27 @@ class ScraperDomijn(Scraper):
         ended_at = parse_datetime(soup_find_string(table[2]).strip())
 
         wrapper_properties = content.find(class_='properties')
-        properties = [soup_find_string(prop.span.span.span).strip() if prop.span.span.span else prop.span.span.contents[-1].strip()
-                      for prop in wrapper_properties.find_all('div', class_='icon-item')]
-        energy_label = properties[0]
-        residence_type = properties[1].lower()
-        bedrooms = int(properties[2])
-        year = int(properties[6])
-        rooms = int(properties[7])
-        floor = 0 if 'begane' in properties[9].lower() else int(properties[9])
-        has_elevator = properties[10] == 'ja'
-        is_senior = properties[11] == 'ja'
+        items = [{
+            'icon': prop.i.attrs['class'].split('--')[-1],
+            'text': soup_find_string(prop.span.span.span).strip() if prop.span.span.span else prop.span.span.contents[-1].strip()
+        } for prop in wrapper_properties.find_all('div', class_='icon-item')]
+
+        properties = {}
+        for item in items:
+            icon = item['icon']
+            while icon in properties:
+                icon += '_'
+            properties[icon] = item['text']
+
+        energy_label = properties['lamp'] if 'lamp' in properties else None
+        residence_type = properties['house'].lower() if 'house' in properties else 'unknown'
+        bedrooms = int(properties['bedroom']) if 'bedroom' in properties else None
+        year = int(properties['clock']) if 'clock' in properties else None
+        rooms = int(properties['door']) if 'door' in properties else None
+        floor = (0 if 'begane' in properties['stair'].lower() else int(properties['stair']))\
+            if 'stair' in properties else None
+        has_elevator = properties['elevator'] == 'ja' if 'elevator' in properties else None
+        is_senior = properties['house_'] == 'ja' if 'house_' in properties else None
 
         floor_plan_url = self.base_url() + wrapper_properties.find_next_sibling('a').attrs['href']
 
