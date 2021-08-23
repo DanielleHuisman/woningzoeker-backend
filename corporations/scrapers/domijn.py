@@ -171,9 +171,6 @@ class ScraperDomijn(Scraper):
         return residences
 
     def login(self, identifier: str, credentials: any):
-        if not self.has_session():
-            self.start_session()
-
         soup = self.fetch_html_page(f'{self.base_url()}/mijndomijn/inloggen')
         verification_token = soup.find(id='usernameLogin').find('input', attrs={'name': '__RequestVerificationToken'}).attrs['value']
 

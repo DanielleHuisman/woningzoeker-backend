@@ -53,7 +53,7 @@ class Scraper:
 
     def start_session(self) -> None:
         if self.session:
-            raise Exception('Session was already started')
+            self.end_session()
 
         self.session = requests.Session()
 
