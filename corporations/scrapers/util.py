@@ -97,10 +97,7 @@ DUTCH_MONTHS = {
 
 
 def parse_date(text: str):
-    t = datetime.strptime(text, '%d-%m-%Y').date()
-    if not timezone.is_aware(t):
-        return timezone.make_aware(t)
-    return t
+    return datetime.strptime(text, '%d-%m-%Y').date()
 
 
 def parse_datetime(text: str):
