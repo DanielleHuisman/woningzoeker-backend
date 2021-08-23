@@ -11,7 +11,7 @@ from .scrapers import scrapers
 
 
 def initialize_tasks():
-    if not Schedule.objects.filter(name='scrape').first():
+    if not Schedule.objects.filter(name='scrape_residences').first():
         schedule('corporations.tasks.scrape_residences', name='scrape_residences', schedule_type=Schedule.CRON, cron='00 */2 * * *')
 
 
