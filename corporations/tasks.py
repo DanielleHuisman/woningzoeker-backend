@@ -1,5 +1,6 @@
 from django.db import transaction
 from django_q.tasks import schedule, Schedule
+from sentry_sdk import capture_exception
 
 from corporations.models import Corporation
 from residences.models import Residence
@@ -44,3 +45,4 @@ def scrape_residences():
         except Exception as err:
             logger.error(f'Failed to scrape using scraper "{type(scraper).__name__}":')
             logger.exception(err)
+            capture_exception(err)
