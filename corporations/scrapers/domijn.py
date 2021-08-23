@@ -110,7 +110,9 @@ class ScraperDomijn(Scraper):
                 'page': page - 1,
                 'size': 9,
                 'advertisementType': 'rent',
-                'rentalLimit': 'below'
+                'rentalLimit': 'below',
+                'price-minimum1': 0,
+                'price-maximum1': 752
             })
 
             page_count = len(soup.find('nav', class_='paging').find_all('li'))
