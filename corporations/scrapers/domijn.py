@@ -42,7 +42,7 @@ class ScraperDomijn(Scraper):
 
         wrapper_properties = content.find(class_='properties')
         items = [{
-            'icon': prop.i.attrs['class'].split('--')[-1],
+            'icon': prop.i.attrs['class'][-1].split('--')[-1],
             'text': soup_find_string(prop.span.span.span).strip() if prop.span.span.span else prop.span.span.contents[-1].strip()
         } for prop in wrapper_properties.find_all('div', class_='icon-item')]
 
