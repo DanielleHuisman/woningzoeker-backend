@@ -17,7 +17,7 @@ class ScraperDomijn(Scraper):
         return 'https://www.domijn.nl'
 
     def get_residence(self, external_id: str):
-        return self.get_residence_by_url(f'${self.base_url()}/woningaanbod/detail/{external_id}')
+        return self.get_residence_by_url(f'{self.base_url()}/woningaanbod/detail/{external_id}')
 
     def get_residence_by_url(self, url: str):
         soup = self.fetch_html_page(url)
