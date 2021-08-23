@@ -119,6 +119,10 @@ class ScraperDomijn(Scraper):
                 wrapper_info = article.find(class_='info')
                 # address = soup_find_string(wrapper_info.find(class_='title'))
                 city = soup_find_string(wrapper_info.find('p'))
+                residence_type = soup_find_string(wrapper_info.find(class_='row').div.p)
+                residence_type = residence_type.replace('/', '').lower().strip()
+                if 'garage' in residence_type:
+                    continue
 
                 wrapper_price = article.find(class_='price')
                 price = parse_price(soup_find_string(wrapper_price.find(class_='price-text')))

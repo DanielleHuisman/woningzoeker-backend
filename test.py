@@ -20,4 +20,4 @@ def test(scraper_name: str):
     # scraper.logout()
 
 
-test('dewoonplaats')
+test('domijn')
