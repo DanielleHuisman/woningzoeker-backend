@@ -69,8 +69,11 @@ class ScraperDeWoonplaats(Scraper):
             ]
         })
 
-        result = data.get('result', {}).get('woningen', [])[0]
-        return self.convert_residence(result)
+        results = data.get('result', {}).get('woningen', [])
+        if len(results) == 0:
+            return None
+
+        return self.convert_residence(results[0])
 
     def get_residence_by_url(self, url: str):
         external_id = URL_ID_REGEX.search(url).group(1)

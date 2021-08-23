@@ -24,6 +24,9 @@ class ScraperDomijn(Scraper):
 
         content = soup.find(id='content-anchor')
 
+        if 'Deze advertentie is niet meer beschikbaar' in str(content):
+            return None
+
         external_id = content.find('form', attrs={'name': 'reactionform'}).attrs['action'].split('/')[-1]
         title = soup_find_string(content.find(class_='title')).split('-')
         # TODO: split address into street and number/suffix
