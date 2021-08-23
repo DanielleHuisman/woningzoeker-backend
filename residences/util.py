@@ -20,7 +20,9 @@ RESIDENCE_TYPE_BY_TEXT: dict[str, Residence.Type] = {
     'flat': Residence.Type.APARTMENT,
     'galerijflat': Residence.Type.APARTMENT,
 
-    'maisonette': Residence.Type.MAISONNETTE
+    'maisonette': Residence.Type.MAISONNETTE,
+
+    'unknown': Residence.Type.UNKNOWN
 }
 
 
