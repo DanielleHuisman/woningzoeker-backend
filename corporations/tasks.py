@@ -23,6 +23,8 @@ def initialize_tasks():
 
 
 def scrape_residences():
+    logger.info('Scraping residences')
+
     # Loop over all scrapers
     for scraper in scrapers:
         try:
@@ -55,8 +57,12 @@ def scrape_residences():
             logger.exception(err)
             capture_exception(err)
 
+        print('Finished scraping residences')
+
 
 def scrape_reactions():
+    logger.info('Scraping reactions')
+
     # Fetch registrations
     registrations = Registration.objects.all()
 
@@ -89,13 +95,15 @@ def scrape_reactions():
                     if not residence:
                         try:
                             # Attempt to scrape the residence
-                            logger.info('Scraping residence "{0}" at corporation "{1}"'.format(scraped_reaction['external_id'], residence.corporation.name))
+                            logger.info('Scraping residence "{0}" at corporation "{1}"'.format(scraped_reaction['external_id'], registration.corporation.name))
                             residence = scraper.get_residence(scraped_reaction['external_id'])
                             if residence:
                                 # Create the residence
                                 residence.corporation = registration.corporation
                                 residence.save()
                             else:
+                                logger.info('Residence "{0}" at corporation "{1}" does not exist.'.format(scraped_reaction['external_id'],
+                                                                                                          registration.corporation.name))
                                 continue
                         except Exception as err:
                             logger.error(f'Failed to scrape using scraper "{type(scraper).__name__}":')
@@ -127,3 +135,5 @@ def scrape_reactions():
             logger.error(f'Failed to scrape using scraper "{type(scraper).__name__}":')
             logger.exception(err)
             capture_exception(err)
+
+        logger.info('Finished scraping reactions')

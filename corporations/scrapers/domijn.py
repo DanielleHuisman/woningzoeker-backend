@@ -227,9 +227,6 @@ class ScraperDomijn(Scraper):
         reactions: list[ScrapedReaction] = []
 
         soup = self.fetch_html_page(f'{self.base_url()}/woningzoekende/reageren/overzicht')
-
-        print(soup)
-
         rows = soup.find('table', class_='table-status').tbody.find_all('tr')
 
         for row in rows:
