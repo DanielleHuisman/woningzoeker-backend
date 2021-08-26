@@ -132,9 +132,6 @@ class ScraperDeWoonplaats(Scraper):
 
         self.is_logged_in = False
 
-        if self.has_session():
-            self.end_session()
-
     def get_user(self):
         if not self.is_logged_in:
             raise Exception('Not logged in')

@@ -203,9 +203,6 @@ class ScraperDomijn(Scraper):
 
         self.is_logged_in = False
 
-        if self.has_session():
-            self.end_session()
-
     def get_user(self):
         if not self.is_logged_in:
             raise Exception('Not logged in')
@@ -230,6 +227,8 @@ class ScraperDomijn(Scraper):
         reactions: list[ScrapedReaction] = []
 
         soup = self.fetch_html_page(f'{self.base_url()}/woningzoekende/reageren/overzicht')
+
+        print(soup)
 
         rows = soup.find('table', class_='table-status').tbody.find_all('tr')
 

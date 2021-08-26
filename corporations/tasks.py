@@ -32,6 +32,8 @@ def scrape_residences():
                 if not corporation:
                     raise Exception(f'Unknown corporation "{scraper.get_handle()}"')
 
+                logger.info(f'Scraping residences at corporation "{corporation.name}"')
+
                 # Scrape residences
                 scraper.start_session()
                 residences = scraper.get_residences()
@@ -65,6 +67,8 @@ def scrape_reactions():
         if not scraper:
             raise Exception(f'Unknown scraper "{registration.corporation.handle}"')
 
+        logger.info(f'Scraping reactions for "{registration.user.username}" at corporation "{registration.corporation}"')
+
         try:
             with transaction.atomic():
                 # Log the user in
@@ -85,6 +89,7 @@ def scrape_reactions():
                     if not residence:
                         try:
                             # Attempt to scrape the residence
+                            logger.info('Scraping residence "{0}" at corporation "{1}"'.format(scraped_reaction['external_id'], residence.corporation.name))
                             residence = scraper.get_residence(scraped_reaction['external_id'])
                             if residence:
                                 # Create the residence
