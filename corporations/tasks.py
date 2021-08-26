@@ -26,7 +26,9 @@ def scrape_residences():
     logger.info('Scraping residences')
 
     # Loop over all scrapers
-    for scraper in scrapers:
+    for scraper_class in scrapers:
+        scraper = scraper_class()
+
         try:
             with transaction.atomic():
                 # Find corporation
@@ -69,9 +71,11 @@ def scrape_reactions():
     # Loop over all registrations
     for registration in registrations:
         # Lookup the scraper
-        scraper = scrapers_by_name[registration.corporation.handle]
-        if not scraper:
+        scraper_class = scrapers_by_name[registration.corporation.handle]
+        if not scraper_class:
             raise Exception(f'Unknown scraper "{registration.corporation.handle}"')
+
+        scraper = scraper_class()
 
         logger.info(f'Scraping reactions for "{registration.user.username}" at corporation "{registration.corporation}"')
 
