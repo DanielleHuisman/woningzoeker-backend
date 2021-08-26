@@ -118,7 +118,9 @@ class ScraperDomijn(Scraper):
                 'price-maximum1': 752
             })
 
-            page_count = len(soup.find('nav', class_='paging').find_all('li'))
+            nav = soup.find('nav', class_='paging')
+            if nav:
+                page_count = len(nav.find_all('li'))
 
             articles = soup.find(id='housingWrapper').find_all('article')
 

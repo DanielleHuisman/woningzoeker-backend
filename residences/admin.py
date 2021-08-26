@@ -26,5 +26,5 @@ class ResidenceAdmin(ModelAdmin):
 
 @register(Reaction)
 class ReactionAdmin(ModelAdmin):
-    list_display = ['id', 'registration', 'residence', 'rank_number']
+    list_display = ['id', 'registration', 'residence', 'rank_number', 'created_at']
     list_filter = ['registration']
