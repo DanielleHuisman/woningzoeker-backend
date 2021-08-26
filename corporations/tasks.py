@@ -26,7 +26,9 @@ def scrape_residences():
     logger.info('Scraping residences')
 
     # Loop over all scrapers
-    for scraper in scrapers:
+    for scraper_class in scrapers:
+        scraper = scraper_class()
+
         try:
             with transaction.atomic():
                 # Find corporation
@@ -69,9 +71,11 @@ def scrape_reactions():
     # Loop over all registrations
     for registration in registrations:
         # Lookup the scraper
-        scraper = scrapers_by_name[registration.corporation.handle]
-        if not scraper:
+        scraper_class = scrapers_by_name[registration.corporation.handle]
+        if not scraper_class:
             raise Exception(f'Unknown scraper "{registration.corporation.handle}"')
+
+        scraper = scraper_class()
 
         logger.info(f'Scraping reactions for "{registration.user.username}" at corporation "{registration.corporation}"')
 
@@ -117,11 +121,13 @@ def scrape_reactions():
                         # Create the reaction
                         reaction = Reaction(
                             created_at=scraped_reaction['created_at'],
-                            rank_number=scraped_reaction['rank_number'],
                             registration=registration,
                             residence=residence
                         )
-                        reaction.save()
+
+                    # Update reaction rank number
+                    reaction.rank_number = scraped_reaction['rank_number']
+                    reaction.save()
 
                     # Update the reactions end timestamp if necessary
                     if scraped_reaction['ended_at'] and not residence.reactions_ended_at:
@@ -136,4 +142,4 @@ def scrape_reactions():
             logger.exception(err)
             capture_exception(err)
 
-        logger.info('Finished scraping reactions')
+    logger.info('Finished scraping reactions')
