@@ -121,11 +121,13 @@ def scrape_reactions():
                         # Create the reaction
                         reaction = Reaction(
                             created_at=scraped_reaction['created_at'],
-                            rank_number=scraped_reaction['rank_number'],
                             registration=registration,
                             residence=residence
                         )
-                        reaction.save()
+
+                    # Update reaction rank number
+                    reaction.rank_number = scraped_reaction['rank_number']
+                    reaction.save()
 
                     # Update the reactions end timestamp if necessary
                     if scraped_reaction['ended_at'] and not residence.reactions_ended_at:
@@ -140,4 +142,4 @@ def scrape_reactions():
             logger.exception(err)
             capture_exception(err)
 
-        logger.info('Finished scraping reactions')
+    logger.info('Finished scraping reactions')
