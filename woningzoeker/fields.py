@@ -59,9 +59,15 @@ class EncryptedField(models.Field):
             return connection.Database.Binary(encrypted_value)
         return value
 
-    def from_db_value(self, value, _expression, _connection):
+    def from_db_value(self, value, expression, connection):
         if value is not None:
-            return force_str(EncryptedField.settings.fernet.decrypt(value))
+            decrypted_value = force_str(EncryptedField.settings.fernet.decrypt(value))
+
+            parent = super()
+            if hasattr(parent, 'from_db_value'):
+                return parent.from_db_value(decrypted_value, expression, connection)
+
+            return decrypted_value
         return value
 
 
@@ -70,6 +76,10 @@ class EncryptedCharField(EncryptedField, models.CharField):
 
 
 class EncryptedTextField(EncryptedField, models.TextField):
+    pass
+
+
+class EncryptedJSONField(EncryptedField, models.JSONField):
     pass
 
 
