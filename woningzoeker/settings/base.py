@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django_q',
     'corsheaders',
     'corporations.apps.CorporationsConfig',
+    'profiles.apps.ProfilesConfig',
     'notifications.apps.NotificationsConfig',
     'residences.apps.ResidencesConfig'
 ]

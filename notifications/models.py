@@ -14,7 +14,8 @@ class NotificationProvider(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
 
     type = models.CharField(max_length=255, choices=Type.choices)
-    credentials = EncryptedJSONField()
+    identifier = models.CharField(max_length=255)
+    credentials = EncryptedJSONField(blank=True, null=True)
 
     user = models.ForeignKey(User, related_name='notification_providers', on_delete=models.CASCADE)
 
