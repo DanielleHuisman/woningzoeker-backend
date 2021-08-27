@@ -3,8 +3,10 @@ from django.conf import settings
 
 from profiles.models import Profile
 from profiles.util import generate_token
+from woningzoeker.logging import logger
 
 from ..models import NotificationProvider
+from .base import Bot
 
 bot = telebot.TeleBot(settings.TELEGRAM_BOT_TOKEN)
 
@@ -44,4 +46,8 @@ def handle_start_command(message):
         bot.send_message(message.chat.id, 'You are successfully registered to receive notifications.')
 
 
-bot.polling()
+class BotTelegram(Bot):
+
+    def run(self):
+        logger.info('Starting Telegram bot')
+        bot.polling()
