@@ -6,8 +6,12 @@ from woningzoeker.logging import logger
 
 from .providers import providers_by_type
 
+# TODO: consider moving these to a task
+
 
 def send_residences_notification(user: User, residences: list[Residence]):
+    logger.info(f'Sending residences notification to user "{user.username}" for {len(residences)} new residences.')
+
     for notification_provider in user.notification_providers.all():
         try:
             provider = providers_by_type[notification_provider.type]()
@@ -19,6 +23,8 @@ def send_residences_notification(user: User, residences: list[Residence]):
 
 
 def send_reactions_notification(user: User, reactions: list[Reaction]):
+    logger.info(f'Sending reactions notification to user "{user.username}" for {len(reactions)} new reactions.')
+
     for notification_provider in user.notification_providers.all():
         try:
             provider = providers_by_type[notification_provider.type]()
