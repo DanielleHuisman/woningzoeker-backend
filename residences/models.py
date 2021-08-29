@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from django.db import models
+from django.utils.text import camel_case_to_spaces
 
 from corporations.models import Corporation, Registration
 
@@ -59,6 +60,14 @@ class Residence(models.Model):
 
     def __str__(self):
         return f'{self.street} {self.number}, {self.postal_code} {self.city.name}'
+
+    @property
+    def pretty_address(self):
+        return f'{self.street} {self.number}, {self.city.name}'
+
+    @property
+    def pretty_type(self):
+        return str(self.type).replace('_', ' ').title()
 
 
 class Reaction(models.Model):

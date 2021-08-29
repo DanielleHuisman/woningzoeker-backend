@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     'django_q',
     'corsheaders',
     'corporations.apps.CorporationsConfig',
+    'profiles.apps.ProfilesConfig',
+    'notifications.apps.NotificationsConfig',
     'residences.apps.ResidencesConfig'
 ]
 
@@ -203,3 +205,8 @@ Q_CLUSTER = {
 # Fernet Encryption
 
 FERNET_KEYS = os.getenv('FERNET_KEYS', '').split(',')
+
+
+# Telegram Bot
+
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')

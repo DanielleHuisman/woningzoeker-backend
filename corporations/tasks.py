@@ -3,6 +3,8 @@ from django_q.tasks import schedule, Schedule
 from sentry_sdk import capture_exception
 
 from corporations.models import Corporation, Registration
+from notifications.util import send_residences_notification, send_reactions_notification
+from profiles.models import Profile
 from residences.models import Residence, Reaction
 from woningzoeker.logging import logger
 
@@ -28,6 +30,7 @@ def scrape_residences():
     # Loop over all scrapers
     for scraper_class in scrapers:
         scraper = scraper_class()
+        new_residence_ids: list[str] = []
 
         try:
             with transaction.atomic():
@@ -53,7 +56,23 @@ def scrape_residences():
                     residence.corporation = corporation
                     residence.save()
 
-            # TODO: check if any users should be notified of new residences
+                    new_residence_ids.append(residence.id)
+
+            # Loop over profiles
+            profiles = Profile.objects.all()
+            for profile in profiles:
+                # Find new residences based on profile
+                new_residences = Residence.objects\
+                    .filter(id__in=new_residence_ids, corporation__registrations__user=profile.user)\
+                    .filter(price_base__gte=profile.min_price_base, city__in=profile.cities.all())
+
+                if profile.max_price_base > 0:
+                    new_residences = new_residences.filter(price_base__lte=profile.max_price_base)
+
+                # Send notification to user
+                new_residences = new_residences.all()
+                if len(new_residences) > 0:
+                    send_residences_notification(profile.user, new_residences)
         except Exception as err:
             logger.error(f'Failed to scrape using scraper "{type(scraper).__name__}":')
             logger.exception(err)
@@ -76,6 +95,7 @@ def scrape_reactions():
             raise Exception(f'Unknown scraper "{registration.corporation.handle}"')
 
         scraper = scraper_class()
+        new_reactions: list[Reaction] = []
 
         logger.info(f'Scraping reactions for "{registration.user.username}" at corporation "{registration.corporation}"')
 
@@ -124,6 +144,10 @@ def scrape_reactions():
                             registration=registration,
                             residence=residence
                         )
+                    else:
+                        # Check if the reaction has a new rank number
+                        if reaction.rank_number is None and scraped_reaction['rank_number'] is not None:
+                            new_reactions.append(reaction)
 
                     # Update reaction rank number
                     reaction.rank_number = scraped_reaction['rank_number']
@@ -137,6 +161,9 @@ def scrape_reactions():
                 # Log the user out
                 scraper.logout()
                 scraper.end_session()
+
+            if len(new_reactions) > 0:
+                send_reactions_notification(registration.user, new_reactions)
         except Exception as err:
             logger.error(f'Failed to scrape using scraper "{type(scraper).__name__}":')
             logger.exception(err)
