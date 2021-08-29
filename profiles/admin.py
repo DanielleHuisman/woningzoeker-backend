@@ -5,5 +5,5 @@ from .models import Profile
 
 @register(Profile)
 class ProfileAdmin(ModelAdmin):
-    list_display = ['id', 'user', 'birthdate', 'min_price', 'max_price']
+    list_display = ['id', 'user', 'birthdate', 'min_price_base', 'max_price_base']
     list_filter = []

@@ -11,8 +11,8 @@ class Profile(models.Model):
 
     birthdate = models.DateField()
     token = models.CharField(max_length=32, unique=True)
-    min_price = models.PositiveIntegerField(default=0)
-    max_price = models.PositiveIntegerField(default=0)
+    min_price_base = models.PositiveIntegerField(default=0)
+    max_price_base = models.PositiveIntegerField(default=0)
 
     user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE)
     cities = models.ManyToManyField(City, related_name='profiles', blank=True)

@@ -15,7 +15,7 @@ def send_residences_notification(user: User, residences: list[Residence]):
     for notification_provider in user.notification_providers.all():
         try:
             provider = providers_by_type[notification_provider.type]()
-            provider.send_residences_notification(user, residences)
+            provider.send_residences_notification(notification_provider, residences)
         except Exception as err:
             logger.error(f'Failed to send residences notification for user "{user.username}" to provider "{notification_provider.type}"')
             logger.exception(err)
@@ -28,7 +28,7 @@ def send_reactions_notification(user: User, reactions: list[Reaction]):
     for notification_provider in user.notification_providers.all():
         try:
             provider = providers_by_type[notification_provider.type]()
-            provider.send_reactions_notification(user, reactions)
+            provider.send_reactions_notification(notification_provider, reactions)
         except Exception as err:
             logger.error(f'Failed to send reactions notification for user "{user.username}" to provider "{notification_provider.type}"')
             logger.exception(err)

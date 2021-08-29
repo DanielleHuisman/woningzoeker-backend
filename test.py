@@ -1,9 +1,16 @@
+from datetime import datetime
+
+from django.contrib.auth.models import User
+from django.utils import timezone
+
 from corporations.scrapers.base import Scraper
 from corporations.scrapers.dewoonplaats import ScraperDeWoonplaats
 from corporations.scrapers.domijn import ScraperDomijn
+from notifications.util import send_residences_notification, send_reactions_notification
+from residences.models import Residence, Reaction
 
 
-def test(scraper_name: str):
+def test_scraper(scraper_name: str):
     scraper: Scraper
 
     if scraper_name == 'dewoonplaats':
@@ -20,4 +27,16 @@ def test(scraper_name: str):
     # scraper.logout()
 
 
-test('domijn')
+def test_notifications():
+    user = User.objects.first()
+    timestamp = timezone.make_aware(datetime(2021, 8, 25))
+
+    residences = Residence.objects.filter(city__name='Enschede', reactions_ended_at__gte=timestamp).all()
+    send_residences_notification(user, residences)
+
+    reactions = Reaction.objects.filter(rank_number__isnull=False, residence__reactions_ended_at__gte=timestamp).all()
+    send_reactions_notification(user, reactions)
+
+
+# test_scraper('domijn')
+test_notifications()

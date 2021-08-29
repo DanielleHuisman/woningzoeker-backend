@@ -64,10 +64,13 @@ def scrape_residences():
                 # Find new residences based on profile
                 new_residences = Residence.objects\
                     .filter(id__in=new_residence_ids, corporation__registrations__user=profile.user)\
-                    .filter(price__gte=profile.min_price, price__lte=profile.max_price, city__in=profile.cities)\
-                    .all()
+                    .filter(price_base__gte=profile.min_price_base, city__in=profile.cities.all())
+
+                if profile.max_price_base > 0:
+                    new_residences = new_residences.filter(price_base__lte=profile.max_price_base)
 
                 # Send notification to user
+                new_residences = new_residences.all()
                 if len(new_residences) > 0:
                     send_residences_notification(profile.user, new_residences)
         except Exception as err:
