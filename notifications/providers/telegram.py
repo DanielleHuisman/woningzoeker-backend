@@ -19,7 +19,7 @@ class ProviderTelegram(Provider):
 
         for residence in residences:
             line = '- <a href="{}">{} - {} {}, {}</a>\n  {} - €{:.2f}'.format(residence.url, residence.corporation.name, residence.street, residence.number,
-                                                                               residence.city, residence.pretty_type, residence.price_total / 100)
+                                                                              residence.city, residence.pretty_type, residence.price_total / 100)
 
             if residence.energy_label is not None:
                 line += f' - Label {residence.energy_label}'

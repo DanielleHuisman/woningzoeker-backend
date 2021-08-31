@@ -66,7 +66,8 @@ class ScraperDomijn(Scraper):
         has_elevator = properties['elevator'] == 'ja' if 'elevator' in properties else None
         is_senior = properties['house_'] == 'ja' if 'house_' in properties else None
 
-        floor_plan_url = self.base_url() + wrapper_properties.find_next_sibling('a').attrs['href']
+        link_floor_plan = wrapper_properties.find_next_sibling('a')
+        floor_plan_url = self.base_url() + link_floor_plan.attrs['href'] if link_floor_plan is not None else None
 
         table = content.find(class_='content').find_next_sibling(class_='row').find('dl').find_all('dd')
         price_service = parse_price(soup_find_string(table[1]))
