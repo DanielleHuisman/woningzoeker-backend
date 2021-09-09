@@ -17,6 +17,7 @@ RESIDENCE_TYPE_BY_TEXT: dict[str, Residence.Type] = {
     'gezinswoning': Residence.Type.HOUSE_UNKNOWN,
 
     'appartement': Residence.Type.APARTMENT,
+    'appartement met lift': Residence.Type.APARTMENT,
     'flat': Residence.Type.APARTMENT,
     'galerijflat': Residence.Type.APARTMENT,
 
@@ -44,4 +45,6 @@ def lookup_residence_type(name: str, alternative_name: str = None) -> Residence.
 
 
 def is_existing_residence(**kwargs):
+    # TODO: consider adding a filter for created_at to deal with residences that re-appear after some time
+
     return Residence.objects.filter(**kwargs).count() > 0

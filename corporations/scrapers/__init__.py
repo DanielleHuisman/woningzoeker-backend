@@ -3,10 +3,12 @@ from typing import Type
 from .base import Scraper
 from .dewoonplaats import ScraperDeWoonplaats
 from .domijn import ScraperDomijn
+from .onshuis import ScraperOnsHuis
 
 scrapers: list[Type[Scraper]] = [
     ScraperDeWoonplaats,
-    ScraperDomijn
+    ScraperDomijn,
+    ScraperOnsHuis
 ]
 
 scrapers_by_name: dict[str, Type[Scraper]] = {}

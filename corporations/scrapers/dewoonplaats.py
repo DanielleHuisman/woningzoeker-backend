@@ -8,8 +8,6 @@ from residences.util import lookup_city, lookup_residence_type
 from .base import Scraper, ScrapedReaction
 from .util import parse_price, parse_dutch_date, parse_dutch_datetime
 
-# TODO: move session/user state management out of the scraper implementations to prevent duplication
-
 URL_ID_REGEX = re.compile(r'/w(\d+)/')
 RANK_NUMBER_REGEX = re.compile(r'uitslag: (\d+)')
 
