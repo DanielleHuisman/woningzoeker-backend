@@ -6,6 +6,7 @@ from django.utils import timezone
 from corporations.scrapers.base import Scraper
 from corporations.scrapers.dewoonplaats import ScraperDeWoonplaats
 from corporations.scrapers.domijn import ScraperDomijn
+from corporations.scrapers.onshuis import ScraperOnsHuis
 from notifications.util import send_residences_notification, send_reactions_notification
 from residences.models import Residence, Reaction
 
@@ -17,10 +18,12 @@ def test_scraper(scraper_name: str):
         scraper = ScraperDeWoonplaats()
     elif scraper_name == 'domijn':
         scraper = ScraperDomijn()
+    elif scraper_name == 'onshuis':
+        scraper = ScraperOnsHuis()
     else:
         raise Exception(f'Unknown scraper "{scraper_name}"')
 
-    print(scraper.get_residences())
+    print([vars(residence) for residence in scraper.get_residences()])
     # scraper.login('', '')
     # print(scraper.get_user())
     # print(scraper.get_reactions())
@@ -38,5 +41,5 @@ def test_notifications():
     send_reactions_notification(user, reactions)
 
 
-# test_scraper('domijn')
-test_notifications()
+test_scraper('onshuis')
+# test_notifications()

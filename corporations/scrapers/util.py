@@ -100,8 +100,8 @@ def parse_date(text: str):
     return datetime.strptime(text, '%d-%m-%Y').date()
 
 
-def parse_datetime(text: str):
-    t = datetime.strptime(text, '%d-%m-%Y %H:%M')
+def parse_datetime(text: str, text_format: str = '%d-%m-%Y %H:%M'):
+    t = datetime.strptime(text, text_format)
     if not timezone.is_aware(t):
         return timezone.make_aware(t)
     return t

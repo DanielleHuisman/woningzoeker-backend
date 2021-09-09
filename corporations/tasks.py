@@ -56,6 +56,10 @@ def scrape_residences():
                     residence.corporation = corporation
                     residence.save()
 
+                    # Add city to corporation
+                    corporation.cities.add(residence.city)
+                    corporation.save()
+
                     new_residence_ids.append(residence.id)
 
             # Loop over profiles

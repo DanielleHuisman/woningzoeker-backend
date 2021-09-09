@@ -5,8 +5,6 @@ from residences.util import lookup_city, lookup_residence_type, is_existing_resi
 from .base import Scraper, ScrapedReaction
 from .util import soup_find_string, parse_price, parse_date, parse_datetime, parse_dutch_datetimes
 
-# TODO: move session/user state management out of the scraper implementations to prevent duplication
-
 
 class ScraperDomijn(Scraper):
 
@@ -96,7 +94,7 @@ class ScraperDomijn(Scraper):
             available_at=available_at,
             reactions_ended_at=ended_at,
             has_elevator=has_elevator,
-            url=None,
+            url=url,
             photo_url=None,
             floor_plan_url=floor_plan_url
             # TODO: use criteria instead
