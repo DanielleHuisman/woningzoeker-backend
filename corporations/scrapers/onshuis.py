@@ -6,7 +6,7 @@ from residences.models import Residence
 from residences.util import lookup_city, lookup_residence_type, is_existing_residence
 
 from .base import Scraper, ScrapedReaction
-from .util import soup_find_string, parse_price, parse_datetime, parse_dutch_datetime
+from .util import soup_find_string, parse_price, parse_date, parse_datetime
 
 URL_ID_REGEX = re.compile(r'/(\d+)/')
 
@@ -57,7 +57,7 @@ class ScraperOnsHuis(Scraper):
 
         wrapper_price = container.find(id='Woning-page')
         available_at = soup_find_string(wrapper_price.find('h3', string='Beschikbaar per').find_next_sibling(class_='infor-wrapper'))
-        available_at = timezone.now().date() if available_at.lower() == 'direct' else parse_dutch_datetime(available_at).date()
+        available_at = timezone.now().date() if available_at.lower() == 'direct' else parse_date(available_at.strip())
         year = int(soup_find_string(wrapper_price.find('h3', string='Bouwjaar').find_next_sibling(class_='infor-wrapper')))
         bedrooms = int(soup_find_string(wrapper_price.find('h3', string='Aantal slaapkamers').find_next_sibling(class_='infor-wrapper')))
         energy_label = soup_find_string(wrapper_price.find('h3', string='Energielabel').find_next_sibling(class_='infor-wrapper').find('strong')).upper()
