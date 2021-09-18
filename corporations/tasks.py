@@ -34,12 +34,12 @@ def scrape_residences():
 
         try:
             with transaction.atomic():
-                # Find corporation
-                corporation = Corporation.objects.filter(handle=scraper.get_handle()).first()
-                if not corporation:
-                    raise Exception(f'Unknown corporation "{scraper.get_handle()}"')
+                # Find platform
+                platform = Corporation.objects.filter(handle=scraper.get_handle()).first()
+                if not platform:
+                    raise Exception(f'Unknown platform "{scraper.get_handle()}"')
 
-                logger.info(f'Scraping residences at corporation "{corporation.name}"')
+                logger.info(f'Scraping residences at platform "{platform.name}"')
 
                 # Scrape residences
                 scraper.start_session()
@@ -48,17 +48,19 @@ def scrape_residences():
 
                 # Loop over all scraped residences
                 for residence in residences:
+                    if not hasattr(residence, 'corporation'):
+                        raise Exception(f'Residence "{residence.external_id}" is missing a corporation at platform "{platform}"')
+
                     # Check if the residence already exists
-                    if Residence.objects.filter(external_id=residence.external_id, corporation=corporation).count() > 0:
+                    if Residence.objects.filter(external_id=residence.external_id, corporation=residence.corporation).count() > 0:
                         continue
 
                     # Create the residence
-                    residence.corporation = corporation
                     residence.save()
 
                     # Add city to corporation
-                    corporation.cities.add(residence.city)
-                    corporation.save()
+                    residence.corporation.cities.add(residence.city)
+                    residence.corporation.save()
 
                     new_residence_ids.append(residence.id)
 
@@ -94,14 +96,14 @@ def scrape_reactions():
     # Loop over all registrations
     for registration in registrations:
         # Lookup the scraper
-        scraper_class = scrapers_by_name[registration.corporation.handle]
+        scraper_class = scrapers_by_name[registration.platform.handle]
         if not scraper_class:
-            raise Exception(f'Unknown scraper "{registration.corporation.handle}"')
+            raise Exception(f'Unknown scraper "{registration.platform.handle}"')
 
         scraper = scraper_class()
         new_reactions: list[Reaction] = []
 
-        logger.info(f'Scraping reactions for "{registration.user.username}" at corporation "{registration.corporation}"')
+        logger.info(f'Scraping reactions for "{registration.user.username}" at platform "{registration.platform}"')
 
         try:
             with transaction.atomic():
@@ -117,21 +119,21 @@ def scrape_reactions():
                     # Find the residence
                     residence = Residence.objects.filter(
                         external_id=scraped_reaction['external_id'],
-                        corporation=registration.corporation
+                        corporation=Corporation.objects.get(handle=scraped_reaction['corporation_handle'])
                     ).first()
 
                     if not residence:
                         try:
                             # Attempt to scrape the residence
-                            logger.info('Scraping residence "{0}" at corporation "{1}"'.format(scraped_reaction['external_id'], registration.corporation.name))
+                            logger.info('Scraping residence "{0}" at platform "{1}"'.format(scraped_reaction['external_id'], registration.platform.name))
                             residence = scraper.get_residence(scraped_reaction['external_id'])
                             if residence:
                                 # Create the residence
-                                residence.corporation = registration.corporation
+                                residence.platform = registration.platform
                                 residence.save()
                             else:
-                                logger.info('Residence "{0}" at corporation "{1}" does not exist.'.format(scraped_reaction['external_id'],
-                                                                                                          registration.corporation.name))
+                                logger.info('Residence "{0}" at platform "{1}" does not exist.'.format(scraped_reaction['external_id'],
+                                                                                                       registration.platform.name))
                                 continue
                         except Exception as err:
                             logger.error(f'Failed to scrape using scraper "{type(scraper).__name__}":')
