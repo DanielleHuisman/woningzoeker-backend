@@ -10,6 +10,7 @@ from residences.models import Residence
 
 
 class ScrapedReaction(TypedDict):
+    corporation_handle: str
     external_id: str
     created_at: date
     ended_at: Optional[datetime]

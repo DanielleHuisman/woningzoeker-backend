@@ -5,6 +5,7 @@ from typing import Optional, Union
 from residences.models import Residence
 from residences.util import lookup_city, lookup_residence_type
 
+from ..models import Corporation
 from .base import Scraper, ScrapedReaction
 from .util import parse_price, parse_dutch_date, parse_dutch_datetime
 
@@ -26,6 +27,7 @@ class ScraperDeWoonplaats(Scraper):
         # TODO: parse additional photos
 
         return Residence(
+            corporation=Corporation.objects.get(handle=self.get_handle()),
             external_id=external_id,
             street=result['straat'],
             number=result['huisnummer'] + result['huisnummertoevoeging'],
@@ -174,6 +176,7 @@ class ScraperDeWoonplaats(Scraper):
 
         for result in results:
             reactions.append({
+                'corporation_handle': self.get_handle(),
                 'external_id': result['id'],
                 'created_at': parse_dutch_date(result['gereageerd_op']),
                 'ended_at': parse_dutch_datetime(result['reactiedatum']),

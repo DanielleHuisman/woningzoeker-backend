@@ -5,6 +5,7 @@ from django.utils import timezone
 from residences.models import Residence
 from residences.util import lookup_city, lookup_residence_type, is_existing_residence
 
+from ..models import Corporation
 from .base import Scraper, ScrapedReaction
 from .util import soup_find_string, parse_price, parse_date, parse_datetime
 
@@ -67,6 +68,7 @@ class ScraperOnsHuis(Scraper):
         # TODO: criteria
 
         return Residence(
+            corporation=Corporation.objects.get(handle=self.get_handle()),
             external_id=external_id,
             # TODO: split address
             # 'street': None,

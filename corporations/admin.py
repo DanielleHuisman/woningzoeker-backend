@@ -1,11 +1,23 @@
 from django.contrib.admin import register, ModelAdmin
 
-from .models import Corporation, Registration
+from .models import Platform, Corporation, Registration
+
+
+@register(Platform)
+class PlatformAdmin(ModelAdmin):
+    list_display = ['id', 'name', 'handle', 'corporation_count', 'registration_count']
+    list_filter = []
+
+    def corporation_count(self, platform):
+        return platform.corporations.count()
+
+    def registration_count(self, platform):
+        return platform.registrations.count()
 
 
 @register(Corporation)
 class CorporationAdmin(ModelAdmin):
-    list_display = ['id', 'name', 'handle', 'city_count', 'residence_count', 'registration_count']
+    list_display = ['id', 'name', 'handle', 'city_count', 'residence_count']
     list_filter = ['cities']
 
     def city_count(self, corporation):
@@ -14,14 +26,11 @@ class CorporationAdmin(ModelAdmin):
     def residence_count(self, corporation):
         return corporation.residences.count()
 
-    def registration_count(self, corporation):
-        return corporation.registrations.count()
-
 
 @register(Registration)
 class RegistrationAdmin(ModelAdmin):
-    list_display = ['id', 'user', 'corporation', 'identifier', 'reaction_count']
-    list_filter = ['user', 'corporation']
+    list_display = ['id', 'user', 'platform', 'identifier', 'reaction_count']
+    list_filter = ['user', 'platform']
 
     def reaction_count(self, registration):
         return registration.reactions.count()
