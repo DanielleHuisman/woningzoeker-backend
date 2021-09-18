@@ -1,10 +1,12 @@
 from django.db import transaction
+from django.db.models import Q
 from django_q.tasks import schedule, Schedule
 from sentry_sdk import capture_exception
 
 from corporations.models import Corporation, Registration
 from notifications.util import send_residences_notification, send_reactions_notification
 from profiles.models import Profile
+from profiles.util import get_age
 from residences.models import Residence, Reaction
 from woningzoeker.logging import logger
 
@@ -67,10 +69,13 @@ def scrape_residences():
             # Loop over profiles
             profiles = Profile.objects.all()
             for profile in profiles:
+                age = get_age(profile)
+
                 # Find new residences based on profile
                 new_residences = Residence.objects\
                     .filter(id__in=new_residence_ids, corporation__platforms__registrations__user=profile.user)\
-                    .filter(price_base__gte=profile.min_price_base, city__in=profile.cities.all())
+                    .filter(price_base__gte=profile.min_price_base, city__in=profile.cities.all())\
+                    .filter(Q(min_age__isnull=True) | Q(min_age__lte=age), Q(max_age__isnull=True) | Q(max_age__gte=age))
 
                 if profile.max_price_base > 0:
                     new_residences = new_residences.filter(price_base__lte=profile.max_price_base)
