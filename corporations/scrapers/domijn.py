@@ -81,8 +81,10 @@ class ScraperDomijn(Scraper):
             # 'number': None,
             # 'postal_code': None,
             city=lookup_city(city),
-            type=lookup_residence_type(residence_type),
             neighbourhood=neighbourhood,
+            type=lookup_residence_type(residence_type),
+            # TODO: are other assignment options possible?
+            assignment=Residence.Assignment.DRAW,
             price_base=price_base,
             price_service=price_service,
             price_benefit=price_benefit,
@@ -98,9 +100,10 @@ class ScraperDomijn(Scraper):
             has_elevator=has_elevator,
             url=url,
             photo_url=None,
-            floor_plan_url=floor_plan_url
-            # TODO: use criteria instead
-            # is_senior=is_senior
+            floor_plan_url=floor_plan_url,
+            # TODO: residents, children, possibly improve min/max age
+            min_age=65 if is_senior else 0,
+            max_age=None
         )
 
     def get_residences(self):

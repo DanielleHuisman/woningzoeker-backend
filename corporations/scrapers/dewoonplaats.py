@@ -33,8 +33,10 @@ class ScraperDeWoonplaats(Scraper):
             number=result['huisnummer'] + result['huisnummertoevoeging'],
             postal_code=result['postcode'].replace(' ', ''),
             city=lookup_city(result['plaats']),
-            type=lookup_residence_type(result['soort'][0].lower(), result['woningtype'].lower()),
             neighbourhood=result['wijk'].split('-')[-1].strip(),
+            type=lookup_residence_type(result['soort'][0].lower(), result['woningtype'].lower()),
+            # TODO: are other assignment options possible?
+            assignment=Residence.Assignment.DRAW,
             price_base=parse_price(result['nettoprijs']),
             price_service=parse_price(result['servicekosten']),
             price_benefit=parse_price(result['toeslagprijs']),
@@ -50,9 +52,12 @@ class ScraperDeWoonplaats(Scraper):
             reactions_ended_at=parse_dutch_datetime(result['reactiedatum']),
             url=f'{self.base_url()}/ik-zoek-woonruimte/!/woning/{external_id}',
             photo_url=self.base_url() + result['overview'],
-            floor_plan_url=None
-            # TODO: also include result['criteria'] (e.g. 55+)
-            # is_senior='senior' in result['woningtype'].lower()
+            floor_plan_url=None,
+            # TODO: children
+            min_age=result['criteria']['min_leeftijd'],
+            max_age=result['criteria']['max_leeftijd'],
+            min_residents=result['criteria']['min_gezinsgrootee'],
+            max_residents=result['criteria']['max_gezinsgrootte']
         )
 
     def get_residence(self, external_id: str):

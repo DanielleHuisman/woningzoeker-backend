@@ -69,7 +69,7 @@ def scrape_residences():
             for profile in profiles:
                 # Find new residences based on profile
                 new_residences = Residence.objects\
-                    .filter(id__in=new_residence_ids, corporation__registrations__user=profile.user)\
+                    .filter(id__in=new_residence_ids, corporation__platforms__registrations__user=profile.user)\
                     .filter(price_base__gte=profile.min_price_base, city__in=profile.cities.all())
 
                 if profile.max_price_base > 0:
