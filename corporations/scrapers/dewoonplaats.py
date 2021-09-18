@@ -56,7 +56,7 @@ class ScraperDeWoonplaats(Scraper):
             # TODO: children
             min_age=result['criteria']['min_leeftijd'],
             max_age=result['criteria']['max_leeftijd'],
-            min_residents=result['criteria']['min_gezinsgrootee'],
+            min_residents=result['criteria']['min_gezinsgrootte'],
             max_residents=result['criteria']['max_gezinsgrootte']
         )
 
