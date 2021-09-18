@@ -45,6 +45,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'modeltranslation',
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,7 +53,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_q',
-    'corsheaders',
+    'django_filters',
+    'graphene_django',
     'corporations.apps.CorporationsConfig',
     'profiles.apps.ProfilesConfig',
     'notifications.apps.NotificationsConfig',
