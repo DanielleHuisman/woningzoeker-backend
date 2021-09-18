@@ -29,6 +29,10 @@ class Residence(models.Model):
         MAISONNETTE = 'MAISONNETTE'
         UNKNOWN = 'UNKNOWN'
 
+    class Assignment(models.TextChoices):
+        DRAW = 'DRAW'
+        REGISTRATION_TIME = 'REGISTRATION_TIME'
+
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     external_id = models.CharField(max_length=255)
     created_at = models.DateField(auto_now_add=True)
@@ -37,7 +41,8 @@ class Residence(models.Model):
     number = models.CharField(max_length=16)
     postal_code = models.CharField(max_length=6)
     neighbourhood = models.CharField(max_length=255, blank=True, null=True)
-    type = models.CharField(max_length=255, choices=Type.choices)
+    type = models.CharField(max_length=255, choices=Assignment.choices)
+    assignment = models.CharField(max_length=255, choices=Type.choices)
     price_base = models.PositiveIntegerField(blank=True, null=True)
     price_service = models.PositiveIntegerField(blank=True, null=True)
     price_benefit = models.PositiveIntegerField(blank=True, null=True)
@@ -54,6 +59,12 @@ class Residence(models.Model):
     url = models.TextField()
     photo_url = models.TextField(blank=True, null=True)
     floor_plan_url = models.TextField(blank=True, null=True)
+    min_age = models.PositiveSmallIntegerField(blank=True, null=True)
+    max_age = models.PositiveSmallIntegerField(blank=True, null=True)
+    min_residents = models.PositiveSmallIntegerField(blank=True, null=True)
+    max_residents = models.PositiveSmallIntegerField(blank=True, null=True)
+    min_children = models.PositiveSmallIntegerField(blank=True, null=True)
+    max_children = models.PositiveSmallIntegerField(blank=True, null=True)
 
     corporation = models.ForeignKey(Corporation, related_name='residences', on_delete=models.CASCADE)
     city = models.ForeignKey(City, related_name='residences', on_delete=models.CASCADE)

@@ -75,8 +75,10 @@ class ScraperOnsHuis(Scraper):
             # 'number': None,
             # 'postal_code': None,
             city=lookup_city(city),
-            type=lookup_residence_type(residence_type),
             neighbourhood=neighbourhood,
+            type=lookup_residence_type(residence_type),
+            # TODO: are other assignment options possible?
+            assignment=Residence.Assignment.DRAW,
             price_base=price_base,
             price_service=price_service,
             price_benefit=price_benefit,
@@ -93,6 +95,7 @@ class ScraperOnsHuis(Scraper):
             url=url,
             photo_url=photo_url,
             floor_plan_url=floor_plan_url
+            # TODO: age, residents, children
         )
 
     def get_residences(self):
