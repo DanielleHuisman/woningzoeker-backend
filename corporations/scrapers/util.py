@@ -138,3 +138,11 @@ def parse_dutch_datetimes(text: str):
     timestamps = DUTCH_DATETIME_REGEX.findall(text)
     return [parse_datetime('{0}-{1}-{2} {3}:{4}'.format(timestamp[0], DUTCH_MONTHS[timestamp[1]], *timestamp[2:5]))
             for timestamp in timestamps]
+
+
+DUTCH_ADDRESS_REGEX = re.compile(r'^(\d*[\wäöüß\d \'\/\\\-\.]+)[,\s]+(\d+)\s*([\wäöüß\d\-\/]*)$', re.IGNORECASE)
+
+
+def parse_dutch_address(text: str):
+    result = DUTCH_ADDRESS_REGEX.match(text)
+    return (result.group(1), f'{result.group(2)}{result.group(3)}') if result else (None, None)
