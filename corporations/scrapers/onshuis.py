@@ -7,7 +7,7 @@ from residences.util import lookup_city, lookup_residence_type, is_existing_resi
 
 from ..models import Corporation
 from .base import Scraper, ScrapedReaction
-from .util import soup_find_string, parse_price, parse_date, parse_datetime
+from .util import soup_find_string, parse_price, parse_date, parse_datetime, parse_dutch_address
 
 URL_ID_REGEX = re.compile(r'/(\d+)/')
 
@@ -30,11 +30,10 @@ class ScraperOnsHuis(Scraper):
 
         container = soup.find('div', class_='content-box')
         details = container.find('div', class_='details-woningaabod')
-        city = details.attrs['data-plaats']
-        # TODO: convert city uppercase to title case
+        city = details.attrs['data-plaats'].strip().title()
         address = details.attrs['data-select-address']
         address = address.replace(city, '').strip()
-        # TODO: split address into street and number
+        street, number = parse_dutch_address(address)
         reactions_ended_at = parse_datetime(details.attrs['data-reactiedatum'], '%Y%m%d%H%M%S')
 
         photo_url = self.base_url() + container.find('div', class_='carousel-inner').find('img').attrs['src']
@@ -69,9 +68,8 @@ class ScraperOnsHuis(Scraper):
         return Residence(
             corporation=Corporation.objects.get(handle=self.get_handle()),
             external_id=external_id,
-            # TODO: split address
-            # 'street': None,
-            # 'number': None,
+            street=street,
+            number=number,
             # 'postal_code': None,
             city=lookup_city(city),
             neighbourhood=neighbourhood,
