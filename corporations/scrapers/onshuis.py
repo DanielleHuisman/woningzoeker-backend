@@ -63,9 +63,8 @@ class ScraperOnsHuis(Scraper):
         bedrooms = int(soup_find_string(wrapper_price.find('h3', string='Aantal slaapkamers').find_next_sibling(class_='infor-wrapper')))
         energy_label = soup_find_string(wrapper_price.find('h3', string='Energielabel').find_next_sibling(class_='infor-wrapper').find('strong')).upper()
 
-        floor_plan_url = self.base_url() + container.find(id='downloads-page').find('a').attrs['href']
-
-        # TODO: criteria
+        wrapper_downloads = container.find(id='downloads-page')
+        floor_plan_url = self.base_url() + wrapper_downloads.find('a').attrs['href'] if wrapper_downloads else None
 
         return Residence(
             corporation=Corporation.objects.get(handle=self.get_handle()),
