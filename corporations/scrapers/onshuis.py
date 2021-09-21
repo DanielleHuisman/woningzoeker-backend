@@ -30,10 +30,11 @@ class ScraperOnsHuis(Scraper):
 
         container = soup.find('div', class_='content-box')
         details = container.find('div', class_='details-woningaabod')
-        city = details.attrs['data-plaats'].strip().title()
+        city = details.attrs['data-plaats'].strip()
         address = details.attrs['data-select-address']
         address = address.replace(city, '').strip()
         street, number = parse_dutch_address(address)
+        city = city.title()
         reactions_ended_at = parse_datetime(details.attrs['data-reactiedatum'], '%Y%m%d%H%M%S')
 
         photo_url = self.base_url() + container.find('div', class_='carousel-inner').find('img').attrs['src']
