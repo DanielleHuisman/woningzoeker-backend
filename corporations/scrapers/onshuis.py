@@ -53,8 +53,8 @@ class ScraperOnsHuis(Scraper):
         price_service = parse_price(soup_find_string(wrapper_price.find(lambda tag: tag.name == 'h3' and 'Servicekosten ' in tag.strings)
                                                      .find_next_sibling(class_='infor-wrapper')))
         price_total = parse_price(soup_find_string(wrapper_price.find('h3', string='Totale huurprijs').find_next_sibling(class_='infor-wrapper')))
-        price_benefit = parse_price(soup_find_string(wrapper_price.find(lambda tag: tag.name == 'h3' and 'Subsidiabele huurprijs ' in tag.strings)
-                                                     .find_next_sibling(class_='infor-wrapper')))
+        price_benefit_tag = wrapper_price.find(lambda tag: tag.name == 'h3' and 'Subsidiabele huurprijs ' in tag.strings)
+        price_benefit = parse_price(soup_find_string(price_benefit_tag.find_next_sibling(class_='infor-wrapper'))) if price_benefit_tag else None
 
         wrapper_price = container.find(id='Woning-page')
         available_at = soup_find_string(wrapper_price.find('h3', string='Beschikbaar per').find_next_sibling(class_='infor-wrapper'))
