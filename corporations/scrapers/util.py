@@ -146,3 +146,22 @@ DUTCH_ADDRESS_REGEX = re.compile(r'^(\d*[\wäöüß\d \'\/\\\-\.]+)[,\s]+(\d+)\s
 def parse_dutch_address(text: str):
     result = DUTCH_ADDRESS_REGEX.match(text)
     return (result.group(1), f'{result.group(2)}{result.group(3)}') if result else (None, None)
+
+
+DUTCH_NUMBERS = {
+    'een': 1,
+    'één': 1,
+    'twee': 2,
+    'drie': 3,
+    'vier': 4,
+    'vijf': 5,
+    'zes': 6,
+    'zeven': 7,
+    'acht': 8,
+    'negen': 9,
+    'tien': 10
+}
+
+
+def parse_dutch_number(text: str):
+    return DUTCH_NUMBERS[text.lower()] if text in DUTCH_NUMBERS else None
