@@ -7,9 +7,11 @@ from residences.util import lookup_city, lookup_residence_type, is_existing_resi
 
 from ..models import Corporation
 from .base import Scraper, ScrapedReaction
-from .util import soup_find_string, parse_price, parse_date, parse_datetime, parse_dutch_address
+from .util import soup_find_string, parse_price, parse_date, parse_datetime, parse_dutch_address, parse_dutch_number
 
 URL_ID_REGEX = re.compile(r'/(\d+)/')
+MIN_AGE_REGEX = re.compile(r'(\d+) jaar en ouder')
+MAX_RESIDENTS_REGEX = re.compile(r'maximaal (\S+) perso(?:on|nen)')
 
 
 class ScraperOnsHuis(Scraper):
@@ -43,6 +45,13 @@ class ScraperOnsHuis(Scraper):
         neighbourhood = soup_find_string(wrapper_info.find('h3', string='Wijk').find_next_sibling(class_='infor-wrapper'))
         residence_type = soup_find_string(wrapper_info.find('h3', string='Woningtype').find_next_sibling(class_='infor-wrapper')).lower()
         has_elevator = 'met lift' in residence_type
+        description_tag = wrapper_info.find('h3', string='Bijzonderheden')
+        description = soup_find_string(description_tag.find_next_sibling(class_='infor-wrapper').p).lower() if description_tag else None
+
+        result = MIN_AGE_REGEX.search(description)
+        min_age = int(result.group(1)) if result else None
+        result = MAX_RESIDENTS_REGEX.search(description)
+        max_residents = parse_dutch_number(result.group(1)) if result else None
 
         wrapper_area = container.find(id='oppervlaktes-page')
         area = round(float(soup_find_string(wrapper_area.find('h3', string='Woonoppervlakte').find_next_sibling(class_='infor-wrapper'))
@@ -93,8 +102,12 @@ class ScraperOnsHuis(Scraper):
             has_elevator=has_elevator,
             url=url,
             photo_url=photo_url,
-            floor_plan_url=floor_plan_url
-            # TODO: age, residents, children
+            floor_plan_url=floor_plan_url,
+            # TODO: children, possibly improve min/max age, min/max residents
+            min_age=min_age,
+            max_age=None,
+            min_residents=None,
+            max_residents=max_residents
         )
 
     def get_residences(self):
