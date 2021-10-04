@@ -61,7 +61,8 @@ class ScraperOnsHuis(Scraper):
         available_at = timezone.now().date() if available_at.lower() == 'direct' else parse_date(available_at.strip())
         year = int(soup_find_string(wrapper_price.find('h3', string='Bouwjaar').find_next_sibling(class_='infor-wrapper')))
         bedrooms = int(soup_find_string(wrapper_price.find('h3', string='Aantal slaapkamers').find_next_sibling(class_='infor-wrapper')))
-        energy_label = soup_find_string(wrapper_price.find('h3', string='Energielabel').find_next_sibling(class_='infor-wrapper').find('strong')).upper()
+        energy_label_tag = wrapper_price.find('h3', string='Energielabel')
+        energy_label = soup_find_string(energy_label_tag.find_next_sibling(class_='infor-wrapper').find('strong')).upper() if energy_label_tag else None
 
         wrapper_downloads = container.find(id='downloads-page')
         floor_plan_url = self.base_url() + wrapper_downloads.find('a').attrs['href'] if wrapper_downloads else None
