@@ -45,8 +45,8 @@ class ScraperOnsHuis(Scraper):
         neighbourhood = soup_find_string(wrapper_info.find('h3', string='Wijk').find_next_sibling(class_='infor-wrapper'))
         residence_type = soup_find_string(wrapper_info.find('h3', string='Woningtype').find_next_sibling(class_='infor-wrapper')).lower()
         has_elevator = 'met lift' in residence_type
-        description_tag = wrapper_info.find('h3', string='Woningtype')
-        description = soup_find_string(description_tag.find_next_sibling(class_='infor-wrapper')).lower() if description_tag else None
+        description_tag = wrapper_info.find('h3', string='Bijzonderheden')
+        description = soup_find_string(description_tag.find_next_sibling(class_='infor-wrapper').p).lower() if description_tag else None
 
         result = MIN_AGE_REGEX.search(description)
         min_age = int(result.group(1)) if result else None
