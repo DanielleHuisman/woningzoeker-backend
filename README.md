@@ -2,6 +2,10 @@
 
 Tool to search for residences of social housing corporations in the Netherlands.
 
+This project consists of two repositories:
+- [Backend](https://github.com/DanielHuisman/woningzoeker-backend)
+- [Frontend](https://github.com/DanielHuisman/woningzoeker-frontend)
+
 ## Social housing corporations
 - [De Woonplaats](https://www.dewoonplaats.nl/)
     - Aalten
@@ -19,6 +23,8 @@ Tool to search for residences of social housing corporations in the Netherlands.
     - Overdinkel
 - [Ons Huis](https://www.onshuis.com/)
     - Enschede
+
+# Backend
 
 ## Development
 ### Prerequisites
