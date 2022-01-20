@@ -48,9 +48,9 @@ class ScraperOnsHuis(Scraper):
         description_tag = wrapper_info.find('h3', string='Bijzonderheden')
         description = soup_find_string(description_tag.find_next_sibling(class_='infor-wrapper').p).lower() if description_tag else None
 
-        result = MIN_AGE_REGEX.search(description)
+        result = MIN_AGE_REGEX.search(description) if description else None
         min_age = int(result.group(1)) if result else None
-        result = MAX_RESIDENTS_REGEX.search(description)
+        result = MAX_RESIDENTS_REGEX.search(description) if description else None
         max_residents = parse_dutch_number(result.group(1)) if result else None
 
         wrapper_area = container.find(id='oppervlaktes-page')
