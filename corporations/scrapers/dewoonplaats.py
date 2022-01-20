@@ -113,9 +113,7 @@ class ScraperDeWoonplaats(Scraper):
                 credentials,
                 False,
                 {
-                    'challenge': '',
-                    'returnto': '',
-                    'samlidpreq': ''
+                    'logincontrol': ''
                 }
             ]
         })

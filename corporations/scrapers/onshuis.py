@@ -48,9 +48,9 @@ class ScraperOnsHuis(Scraper):
         description_tag = wrapper_info.find('h3', string='Bijzonderheden')
         description = soup_find_string(description_tag.find_next_sibling(class_='infor-wrapper').p).lower() if description_tag else None
 
-        result = MIN_AGE_REGEX.search(description)
+        result = MIN_AGE_REGEX.search(description) if description else None
         min_age = int(result.group(1)) if result else None
-        result = MAX_RESIDENTS_REGEX.search(description)
+        result = MAX_RESIDENTS_REGEX.search(description) if description else None
         max_residents = parse_dutch_number(result.group(1)) if result else None
 
         wrapper_area = container.find(id='oppervlaktes-page')
@@ -67,7 +67,7 @@ class ScraperOnsHuis(Scraper):
 
         wrapper_price = container.find(id='Woning-page')
         available_at = soup_find_string(wrapper_price.find('h3', string='Beschikbaar per').find_next_sibling(class_='infor-wrapper'))
-        available_at = timezone.now().date() if available_at.lower() == 'direct' else parse_date(available_at.strip())
+        available_at = timezone.now().date() if 'direct' in available_at.lower() else parse_date(available_at.strip())
         year = int(soup_find_string(wrapper_price.find('h3', string='Bouwjaar').find_next_sibling(class_='infor-wrapper')))
         bedrooms = int(soup_find_string(wrapper_price.find('h3', string='Aantal slaapkamers').find_next_sibling(class_='infor-wrapper')))
         energy_label_tag = wrapper_price.find('h3', string='Energielabel')
