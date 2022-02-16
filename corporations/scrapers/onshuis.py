@@ -66,8 +66,8 @@ class ScraperOnsHuis(Scraper):
         price_benefit = parse_price(soup_find_string(price_benefit_tag.find_next_sibling(class_='infor-wrapper'))) if price_benefit_tag else None
 
         wrapper_price = container.find(id='Woning-page')
-        available_at = soup_find_string(wrapper_price.find('h3', string='Beschikbaar per').find_next_sibling(class_='infor-wrapper'))
-        available_at = timezone.now().date() if 'direct' in available_at.lower() else parse_date(available_at.strip())
+        available_at = soup_find_string(wrapper_price.find('h3', string='Beschikbaar per').find_next_sibling(class_='infor-wrapper')).lower().lstrip('per')
+        available_at = timezone.now().date() if 'direct' in available_at else parse_date(available_at.strip())
         year = int(soup_find_string(wrapper_price.find('h3', string='Bouwjaar').find_next_sibling(class_='infor-wrapper')))
         bedrooms = int(soup_find_string(wrapper_price.find('h3', string='Aantal slaapkamers').find_next_sibling(class_='infor-wrapper')))
         energy_label_tag = wrapper_price.find('h3', string='Energielabel')
