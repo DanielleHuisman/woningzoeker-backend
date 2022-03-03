@@ -39,8 +39,8 @@ class ScraperDomijn(Scraper):
         price_base = parse_price(soup_find_string(wrapper_prices[2]))
 
         table = content.find('dl').find_all('dd')
-        available_at = parse_date(soup_find_string(table[1]).strip())
-        ended_at = parse_datetime(soup_find_string(table[2]).strip())
+        available_at = parse_date(soup_find_string(table[1]).strip()) if len(table) >= 2 else None
+        ended_at = parse_datetime(soup_find_string(table[2]).strip()) if len(table) >= 3 else None
 
         wrapper_properties = content.find(class_='properties')
         items = [{
